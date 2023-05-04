@@ -2,6 +2,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
+import os
+import random
+from config import read_config, write_config
+
 
 class BenResponses(commands.Cog):
     """Talking Ben responses."""
@@ -14,8 +18,12 @@ class BenResponses(commands.Cog):
         if not message.content.endswith('?'):
             return
 
-        with open('./configs/config.json', 'r') as f:
-            ...
+        config = read_config('config.json')
+
+        if message.channel in config['response_channels']:
+            responses = [discord.File(f'./assets/ben_responses/{filename}')
+                         for filename in os.listdir('./assets/ben_responses')]
+            await message.reply(file=random.choice(responses))
 
     @commands.hybrid_command(
         name='toggleresponses',
