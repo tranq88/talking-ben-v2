@@ -25,6 +25,17 @@ class TimePings(commands.Cog):
         self.time_pm_ab.start()
         self.time_pm_bc.start()
 
+    @commands.hybrid_command(
+        name='time',
+        description='''Schedule daily pings to someone at 7:27pm.
+         Use /mutetime to avoid being pinged.'''
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    @app_commands.describe(user='da user')
+    async def time(self, ctx: commands.Context, user: discord.Member):
+        config = read_config('config.json')
+        await ctx.reply(user)
+
     # -----------------------------
     #           Ontario
     # -----------------------------
