@@ -5,6 +5,7 @@ from discord import app_commands
 import os
 import random
 from config import read_config, write_config
+from env import BOT_TEST_SERVER, GFG_SERVER
 
 
 class BenResponses(commands.Cog):
@@ -15,6 +16,10 @@ class BenResponses(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        """
+        Respond to messages ending with a question mark if the channel
+        has Ben responses enabled.
+        """
         if not message.content.endswith('?'):
             return
 
@@ -29,7 +34,7 @@ class BenResponses(commands.Cog):
         name='toggleresponses',
         description='Toggle Talking Ben responses for this channel.'
     )
-    @app_commands.guilds(discord.Object(id=952066732120473630))
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
     async def toggleresponses(self, ctx: commands.Context):
         config = read_config('config.json')
         id_ = ctx.channel.id
@@ -46,5 +51,5 @@ class BenResponses(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(BenResponses(bot),
-                      # bot test server id
-                      guild=discord.Object(id=952066732120473630))
+                      guilds=[discord.Object(id=BOT_TEST_SERVER),
+                              discord.Object(id=GFG_SERVER)])

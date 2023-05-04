@@ -3,7 +3,7 @@ from discord.ext import commands
 import asyncio
 
 import os
-from dotenv import load_dotenv
+from env import BOT_TOKEN, BOT_TEST_SERVER, GFG_SERVER
 
 
 class Bot(commands.Bot):
@@ -28,16 +28,16 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
 
         if not self.synced:
+            # await self.tree.sync()
             await self.tree.sync(
-                guild=discord.Object(id=952066732120473630))  # bts id
+                guild=discord.Object(id=BOT_TEST_SERVER))
+            # await self.tree.sync(
+            #     guild=discord.Object(id=GFG_SERVER))
             self.synced = True
 
         print(f'Logged in as {self.user}')
 
 
 if __name__ == '__main__':
-
-    load_dotenv()
-
     bot = Bot()
-    bot.run(os.getenv('BOT_TOKEN'))
+    bot.run(BOT_TOKEN)
