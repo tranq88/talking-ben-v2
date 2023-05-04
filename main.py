@@ -7,21 +7,24 @@ from dotenv import load_dotenv
 
 
 class Bot(commands.Bot):
-    def __init__(self) -> None:
+    def __init__(self):
 
         intents = discord.Intents.default()
-        super().__init__(command_prefix='b!', intents=intents)
+        intents.message_content = True
+        super().__init__(command_prefix='b!',
+                         intents=intents,
+                         help_command=None)
 
         asyncio.run(self.load_cogs())
 
         self.synced = False
 
-    async def load_cogs(self) -> None:
+    async def load_cogs(self):
         for filename in os.listdir('./cogs'):
             if filename.endswith('.py'):
                 await self.load_extension(f'cogs.{filename[:-3]}')
 
-    async def on_ready(self) -> None:
+    async def on_ready(self):
         await self.wait_until_ready()
 
         if not self.synced:
