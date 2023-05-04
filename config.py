@@ -10,4 +10,4 @@ def read_config(filename: str) -> dict:
 def write_config(filename: str, config: dict) -> None:
     """Overwrite ./configs/<filename> with <config>."""
     with open(f'./configs/{filename}', 'w') as f:
-        json.dump(config, f)
+        json.dump(config, f, indent=4)

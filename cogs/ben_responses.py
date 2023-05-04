@@ -20,7 +20,7 @@ class BenResponses(commands.Cog):
 
         config = read_config('config.json')
 
-        if message.channel in config['response_channels']:
+        if message.channel.id in config['response_channels']:
             responses = [discord.File(f'./assets/ben_responses/{filename}')
                          for filename in os.listdir('./assets/ben_responses')]
             await message.reply(file=random.choice(responses))
@@ -31,7 +31,17 @@ class BenResponses(commands.Cog):
     )
     @app_commands.guilds(discord.Object(id=952066732120473630))
     async def toggleresponses(self, ctx: commands.Context):
-        await ctx.reply('Hi')
+        config = read_config('config.json')
+        id_ = ctx.channel.id
+
+        if id_ in config['response_channels']:
+            config['response_channels'].remove(id_)
+            await ctx.reply(f'Toggled off Ben responses for <#{id_}>')
+        else:
+            config['response_channels'].append(id_)
+            await ctx.reply(f'Toggled on Ben responses for <#{id_}>')
+
+        write_config('config.json', config)
 
 
 async def setup(bot: commands.Bot):
