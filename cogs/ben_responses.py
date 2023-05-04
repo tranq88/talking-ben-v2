@@ -9,6 +9,14 @@ class BenResponses(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message):
+        if not message.content.endswith('?'):
+            return
+
+        with open('./configs/config.json', 'r') as f:
+            ...
+
     @commands.hybrid_command(
         name='toggleresponses',
         description='Toggle Talking Ben responses for this channel.'
