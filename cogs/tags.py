@@ -16,6 +16,7 @@ class Tags(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
+        """View a tag."""
         if not (message.content.startswith('b!') and
                 message.author != self.bot.user):
             return
