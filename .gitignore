@@ -1,5 +1,5 @@
 assets/
-configs/
+jsons/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

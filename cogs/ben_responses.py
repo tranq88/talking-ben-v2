@@ -4,7 +4,7 @@ from discord import app_commands
 
 import os
 import random
-from config import read_config, write_config
+from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER
 
 
@@ -23,7 +23,7 @@ class BenResponses(commands.Cog):
         if not message.content.endswith('?'):
             return
 
-        config = read_config('config.json')
+        config = read_json('config.json')
 
         if message.channel.id in config['response_channels']:
             responses = [discord.File(f'./assets/ben_responses/{filename}')
@@ -36,7 +36,7 @@ class BenResponses(commands.Cog):
     )
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
     async def toggleresponses(self, ctx: commands.Context):
-        config = read_config('config.json')
+        config = read_json('config.json')
         id_ = ctx.channel.id
 
         if id_ in config['response_channels']:
@@ -46,7 +46,7 @@ class BenResponses(commands.Cog):
             config['response_channels'].append(id_)
             await ctx.reply(f'Toggled on Ben responses for <#{id_}>')
 
-        write_config('config.json', config)
+        write_json('config.json', config)
 
 
 async def setup(bot: commands.Bot):
