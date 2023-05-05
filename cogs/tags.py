@@ -19,7 +19,17 @@ class Tags(commands.Cog):
         if not (message.content.startswith('b!') and
                 message.author != self.bot.user):
             return
-        ...
+
+        tags = read_json('tags.json')
+        check = message.content.split('b!', 1)[1]
+
+        if check in tags:
+            if 'message' in tags[check]:
+                await message.channel.send(tags[check]['message'])
+            else:
+                filename = tags[check]['filename']
+                file = discord.File(f'./assets/tags/{filename}')
+                await message.channel.send(file=file)
 
     @commands.hybrid_group(name='tag', aliases=['t'])
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
