@@ -60,6 +60,24 @@ class TimePings(commands.Cog):
         await ctx.reply((f'Time pings will now be sent to ``{user}`` '
                          f'(previously ``{prev_display}``)'))
 
+    @commands.hybrid_command(
+        name='mutetime',
+        description=('Toggle muting time pings scheduled by /time. '
+                     'Muting time pings will prevent you from using /time.')
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def mutetime(self, ctx: commands.Context):
+        config = read_json('config.json')
+
+        if ctx.author.id in config['time_muted']:
+            config['time_muted'].remove(ctx.author.id)
+            await ctx.reply('You can now receive time pings.')
+        else:
+            config['time_muted'].append(ctx.author.id)
+            await ctx.reply('You will no longer receive time pings.')
+
+        write_json('config.json', config)
+
     # -----------------------------
     #           Ontario
     # -----------------------------
