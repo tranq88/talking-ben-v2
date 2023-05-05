@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands, tasks
 from discord import app_commands
 
-from config import read_config, write_config
+from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_GENERAL_ID
+from member_conv import MemberConv
 import datetime
 import pytz
 
@@ -27,21 +28,44 @@ class TimePings(commands.Cog):
 
     @commands.hybrid_command(
         name='time',
-        description='''Schedule daily pings to someone at 7:27pm.
-         Use /mutetime to avoid being pinged.'''
+        description=('Schedule daily pings to a user at 7:27pm. '
+                     'Use /mutetime to avoid being pinged.')
     )
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
-    @app_commands.describe(user='da user')
-    async def time(self, ctx: commands.Context, user: discord.Member):
-        config = read_config('config.json')
-        await ctx.reply(user)
+    async def time(self,
+                   ctx: commands.Context,
+                   user: app_commands.Transform[discord.Member, MemberConv]):
+        if not user:
+            await ctx.reply('User not found.')
+            return
+
+        config = read_json('config.json')
+
+        if ctx.author.id in config['time_muted']:
+            await ctx.reply(('You have muted time pings and may not use '
+                             '``b!time`` as a result. '
+                             'Do ``b!mutetime`` to unmute.'))
+            return
+
+        if user.id in config['time_muted']:
+            await ctx.reply(f'``{user}`` has time pings muted.')
+            return
+
+        prev_pingee = self.bot.get_user(config['time_pingee'])
+        prev_display = prev_pingee.name + '#' + prev_pingee.discriminator
+
+        config['time_pingee'] = user.id
+        write_json('config.json', config)
+
+        await ctx.reply((f'Time pings will now be sent to ``{user}`` '
+                         f'(previously ``{prev_display}``)'))
 
     # -----------------------------
     #           Ontario
     # -----------------------------
     @tasks.loop(hours=24)
     async def time_pm_on(self):
-        config = read_config('config.json')
+        config = read_json('config.json')
         await self.gfg_general.send(f'<@{config["time_pingee"]}> time')
 
     @time_pm_on.before_loop
@@ -59,7 +83,7 @@ class TimePings(commands.Cog):
     # -----------------------------
     @tasks.loop(hours=24)
     async def time_pm_ab(self):
-        config = read_config('config.json')
+        config = read_json('config.json')
         await self.gfg_general.send(f'<@{config["time_pingee"]}> alberta time')
 
     @time_pm_ab.before_loop
@@ -77,7 +101,7 @@ class TimePings(commands.Cog):
     # -----------------------------
     @tasks.loop(hours=24)
     async def time_pm_bc(self):
-        config = read_config('config.json')
+        config = read_json('config.json')
         await self.gfg_general.send(f'<@{config["time_pingee"]}> bc time')
 
     @time_pm_bc.before_loop
