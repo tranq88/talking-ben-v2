@@ -6,6 +6,34 @@ from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER
 from typing import Optional
 import os
+from paginator import Paginator
+import random
+
+
+class Buttons(discord.ui.View):
+    def __init__(self, paginator: Paginator):
+        super().__init__(timeout=60)
+        self.paginator = paginator
+
+    @discord.ui.button(label='Prev')
+    async def prev_page(self,
+                        interaction: discord.Interaction,
+                        button: discord.ui.Button):
+        self.paginator.prev_page()
+        await interaction.response.edit_message(
+            embed=self.paginator.current_page(),
+            view=self
+        )
+
+    @discord.ui.button(label='Next')
+    async def next_page(self,
+                        interaction: discord.Interaction,
+                        button: discord.ui.Button):
+        self.paginator.next_page()
+        await interaction.response.edit_message(
+            embed=self.paginator.current_page(),
+            view=self
+        )
 
 
 class Tags(commands.Cog):
@@ -122,7 +150,11 @@ class Tags(commands.Cog):
 
     @tag.command(name='list')
     async def list(self, ctx: commands.Context):
-        await ctx.reply('tag list')
+        p = Paginator([str(x) for x in range(10)], 3)
+        await ctx.interaction.response.send_message(
+            view=Buttons(p),
+            embed=p.current_page()
+        )
 
 
 async def setup(bot: commands.Bot):
