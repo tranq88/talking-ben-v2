@@ -6,34 +6,8 @@ from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER
 from typing import Optional
 import os
-from paginator import Paginator
-import random
-
-
-class Buttons(discord.ui.View):
-    def __init__(self, paginator: Paginator):
-        super().__init__(timeout=60)
-        self.paginator = paginator
-
-    @discord.ui.button(label='Prev')
-    async def prev_page(self,
-                        interaction: discord.Interaction,
-                        button: discord.ui.Button):
-        self.paginator.prev_page()
-        await interaction.response.edit_message(
-            embed=self.paginator.current_page(),
-            view=self
-        )
-
-    @discord.ui.button(label='Next')
-    async def next_page(self,
-                        interaction: discord.Interaction,
-                        button: discord.ui.Button):
-        self.paginator.next_page()
-        await interaction.response.edit_message(
-            embed=self.paginator.current_page(),
-            view=self
-        )
+from paginator import Paginator, PaginatorButtons
+from discord.app_commands import Choice
 
 
 class Tags(commands.Cog):
@@ -121,7 +95,7 @@ class Tags(commands.Cog):
     @tag.command(
         name='delete',
         aliases=['del'],
-        description=('Delete a tag.')
+        description='Delete a tag.'
     )
     @commands.has_permissions(administrator=True)
     async def delete(self, ctx: commands.Context, tag_name: str):
@@ -148,13 +122,45 @@ class Tags(commands.Cog):
             f'Deleted tag ``{tag_name}``.'
         )
 
-    @tag.command(name='list')
-    async def list(self, ctx: commands.Context):
-        p = Paginator([str(x) for x in range(10)], 3)
-        await ctx.interaction.response.send_message(
-            view=Buttons(p),
-            embed=p.current_page()
+    @tag.command(name='list', description="View this server's tags.")
+    @app_commands.describe(sort='Default sort: Date added (newest first)')
+    @app_commands.choices(sort=[
+        Choice(name='Alphabetical', value=1),
+        Choice(name='Date added (oldest first)', value=2)
+    ])
+    async def list(self, ctx: commands.Context, sort: Choice[int] = None):
+        tags = read_json('tags.json')
+
+        if not sort:  # default sort
+            tags = dict(list(tags.items())[::-1])
+            sort_type = 'Date added (newest first)'
+        elif sort.value == 1:
+            tags = dict(sorted(tags.items()))
+            sort_type = sort.name
+        else:
+            # <tags> is already sorted by oldest first
+            sort_type = sort.name
+
+        p = Paginator(
+            title='Tags for Goldfish Gang',
+            url=ctx.guild.icon.url,
+            elements=['b!' + tag for tag in tags],
+            max_per_page=10,
+            extra_footer=f' | Sort: {sort_type}'
         )
+
+        if len(p) == 1:  # send without buttons
+            await ctx.reply(
+                embed=p.current_page(),
+                mention_author=False
+            )
+        else:
+            view = PaginatorButtons(p)
+            view.message = await ctx.reply(
+                embed=p.current_page(),
+                view=view,
+                mention_author=False
+            )
 
 
 async def setup(bot: commands.Bot):
