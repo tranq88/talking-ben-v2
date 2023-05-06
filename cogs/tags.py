@@ -1,11 +1,11 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 from discord import app_commands
 
 from jsons import read_json, write_json
-from env import BOT_TEST_SERVER, GFG_SERVER, GFG_GENERAL_ID
-from member_conv import MemberConv
+from env import BOT_TEST_SERVER, GFG_SERVER
 from typing import Optional
+import os
 
 
 class Tags(commands.Cog):
@@ -27,7 +27,7 @@ class Tags(commands.Cog):
         if check in tags:
             if 'message' in tags[check]:
                 await message.channel.send(tags[check]['message'])
-            else:
+            else:  # it's an attachment tag
                 filename = tags[check]['filename']
                 file = discord.File(f'./assets/tags/{filename}')
                 await message.channel.send(file=file)
@@ -37,7 +37,11 @@ class Tags(commands.Cog):
     async def tag(self, ctx: commands.Context):
         await ctx.reply('tag')
 
-    @tag.command(name='add')
+    @tag.command(
+        name='add',
+        description=('Create a tag of either a message '
+                     'or an attachment.')
+    )
     @commands.has_permissions(administrator=True)
     @app_commands.describe(attachment=('Providing an attachment will ignore '
                                        'any argument for [message].'))
@@ -86,10 +90,35 @@ class Tags(commands.Cog):
             f'Successfully tagged as ``{tag_name}``.'
         )
 
-    @tag.command(name='delete', aliases=['del'])
+    @tag.command(
+        name='delete',
+        aliases=['del'],
+        description=('Delete a tag.')
+    )
     @commands.has_permissions(administrator=True)
-    async def delete(self, ctx: commands.Context):
-        await ctx.reply('tag delete')
+    async def delete(self, ctx: commands.Context, tag_name: str):
+        if not ctx.interaction:
+            await ctx.reply("Use ``/tag delete`` instead, it's just better 😄")
+            return
+
+        tags = read_json('tags.json')
+
+        if tag_name not in tags:
+            await ctx.interaction.response.send_message(
+                'That tag does not exist!',
+                ephemeral=True
+            )
+            return
+
+        if 'filename' in tags[tag_name]:
+            os.remove(f"./assets/tags/{tags[tag_name]['filename']}")
+
+        tags.pop(tag_name)
+        write_json('tags.json', tags)
+
+        await ctx.interaction.response.send_message(
+            f'Deleted tag ``{tag_name}``.'
+        )
 
     @tag.command(name='list')
     async def list(self, ctx: commands.Context):
