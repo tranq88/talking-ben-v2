@@ -1,13 +1,14 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from discord.app_commands import Choice
 
+import os
 from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER
 from typing import Optional
-import os
+
 from paginator import Paginator, PaginatorButtons
-from discord.app_commands import Choice
 
 
 class Tags(commands.Cog):
