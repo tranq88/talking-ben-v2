@@ -114,7 +114,7 @@ class Tags(commands.Cog):
 
         tags.pop(tag_name)
         write_json('tags.json', tags)
-        
+
         await ctx.reply(f'Deleted tag ``{tag_name}``.')
 
     @tag.command(name='list', description="View this server's tags.")
