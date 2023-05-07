@@ -37,7 +37,10 @@ class Tags(commands.Cog):
     @commands.hybrid_group(name='tag', aliases=['t'])
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
     async def tag(self, ctx: commands.Context):
-        await ctx.reply('tag')
+        await ctx.reply(
+            ('To view a tag, do ``b!(tag name)``. '
+             "Do ``/tag list`` to view this server's tags.")
+        )
 
     @tag.command(
         name='add',
