@@ -34,6 +34,7 @@ class BenResponses(commands.Cog):
         name='toggleresponses',
         description='Toggle Talking Ben responses for this channel.'
     )
+    @commands.has_permissions(administrator=True)
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
     async def toggleresponses(self, ctx: commands.Context):
         config = read_json('config.json')
