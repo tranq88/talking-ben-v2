@@ -103,17 +103,10 @@ class Tags(commands.Cog):
     )
     @commands.has_permissions(administrator=True)
     async def delete(self, ctx: commands.Context, tag_name: str):
-        if not ctx.interaction:
-            await ctx.reply("Use ``/tag delete`` instead, it's just better 😄")
-            return
-
         tags = read_json('tags.json')
 
         if tag_name not in tags:
-            await ctx.interaction.response.send_message(
-                'That tag does not exist!',
-                ephemeral=True
-            )
+            await ctx.reply('That tag does not exist!')
             return
 
         if 'filename' in tags[tag_name]:
@@ -121,10 +114,8 @@ class Tags(commands.Cog):
 
         tags.pop(tag_name)
         write_json('tags.json', tags)
-
-        await ctx.interaction.response.send_message(
-            f'Deleted tag ``{tag_name}``.'
-        )
+        
+        await ctx.reply(f'Deleted tag ``{tag_name}``.')
 
     @tag.command(name='list', description="View this server's tags.")
     @app_commands.describe(sort='Default sort: Date added (newest first)')
