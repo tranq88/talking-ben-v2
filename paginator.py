@@ -35,7 +35,7 @@ class Paginator:
 
         for i, p in enumerate(self.pages):
             p.set_thumbnail(url=url)
-            p.set_footer(text=f'Page {i+1} of {len(self)}' + extra_footer)
+            p.set_footer(text=f'Page {i+1} of {len(self)}{extra_footer}')
 
         self.current_index = 0
 
