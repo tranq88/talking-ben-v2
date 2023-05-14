@@ -10,7 +10,8 @@ class Paginator:
                  elements: list[str],
                  max_per_page: int,
                  extra_footer: str = '',
-                 formatter: str = ''):
+                 formatter: str = '',
+                 body_header: str = ''):
         """
         Split the strings in <elements> into pages,
         where each page has at most <max_per_page> strings.
@@ -26,7 +27,7 @@ class Paginator:
         self.pages = [
             discord.Embed(
                 title=title,
-                description=f'{formatter}{partition}{formatter}',
+                description=f'{formatter}{body_header}{partition}{formatter}',
                 color=discord.Color.from_rgb(181, 142, 101)
             )
             for partition in partitions
