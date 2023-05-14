@@ -1,9 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
-from discord.app_commands import Choice
 
-import os
 from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_GOLDFISH_EMOTE
 
@@ -118,6 +116,33 @@ class Autism(commands.Cog):
         else:
             await ctx.reply(f'Added ``{str(user)}`` with a score of '
                             f'``{score}`` to the rankings.')
+
+    @commands.hybrid_command(
+        name='autismdel',
+        description='Delete a user from the autism leaderboard rankings.'
+    )
+    @commands.has_permissions(administrator=True)
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def autismdel(self,
+                        ctx: commands.Context,
+                        user: app_commands.Transform[
+                            discord.Member,
+                            MemberConv
+                        ]):
+        if not user:
+            await ctx.reply('User not found.')
+            return
+
+        lb = read_json('autismlb.json')
+        for key in lb:
+            if user.id in lb[key]:
+                lb[key].remove(user.id)
+                write_json('autismlb.json', lb)
+
+                await ctx.reply(f'Removed ``{str(user)}`` from the rankings.')
+                return
+
+        await ctx.reply('User is not on the rankings.')
 
 
 async def setup(bot: commands.Bot):
