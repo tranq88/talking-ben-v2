@@ -6,9 +6,9 @@ from discord.app_commands import Choice
 import os
 from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_GOLDFISH_EMOTE
-from typing import Optional
 
 from paginator import Paginator, PaginatorButtons
+from member_conv import MemberConv
 
 
 class Autism(commands.Cog):
@@ -72,12 +72,52 @@ class Autism(commands.Cog):
                 mention_author=False
             )
         else:
-            view = PaginatorButtons(p)
+            view = PaginatorButtons(p, ctx.author)
             view.message = await ctx.reply(
                 embed=p.current_page(),
                 view=view,
                 mention_author=False
             )
+
+    @commands.hybrid_command(
+        name='autismadd',
+        description=(
+            'Add a user to the autism leaderboard rankings; '
+            "update a user's score if they're already ranked."
+        )
+    )
+    @commands.has_permissions(administrator=True)
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def autismadd(self,
+                        ctx: commands.Context,
+                        user: app_commands.Transform[
+                            discord.Member,
+                            MemberConv
+                        ],
+                        score: str):
+        if not user:
+            await ctx.reply('User not found.')
+            return
+
+        lb = read_json('autismlb.json')
+
+        # check if <user> is already ranked
+        is_update = False
+        for key in lb:
+            if user.id in lb[key]:
+                is_update = True
+                lb[key].remove(user.id)
+                break
+
+        lb[score] = lb.get(score, []) + [user.id]
+        write_json('autismlb.json', lb)
+
+        if is_update:
+            await ctx.reply(f'Updated ``{str(user)}`` to a score of '
+                            f'``{score}`` in the rankings.')
+        else:
+            await ctx.reply(f'Added ``{str(user)}`` with a score of '
+                            f'``{score}`` to the rankings.')
 
 
 async def setup(bot: commands.Bot):
