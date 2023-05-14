@@ -58,9 +58,10 @@ class Paginator:
 class PaginatorButtons(discord.ui.View):
     """Paginator controls."""
 
-    def __init__(self, paginator: Paginator):
+    def __init__(self, paginator: Paginator, owner: discord.User):
         super().__init__(timeout=60)
         self.paginator = paginator
+        self.owner = owner
 
     async def on_timeout(self):
         self.clear_items()
@@ -70,6 +71,9 @@ class PaginatorButtons(discord.ui.View):
     async def prev_page(self,
                         interaction: discord.Interaction,
                         button: discord.ui.Button):
+        if interaction.user != self.owner:
+            return
+
         self.paginator.prev_page()
         self.next_page.disabled = False
 
@@ -85,6 +89,9 @@ class PaginatorButtons(discord.ui.View):
     async def next_page(self,
                         interaction: discord.Interaction,
                         button: discord.ui.Button):
+        if interaction.user != self.owner:
+            return
+
         self.paginator.next_page()
         self.prev_page.disabled = False
 

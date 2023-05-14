@@ -150,7 +150,7 @@ class Tags(commands.Cog):
                 mention_author=False
             )
         else:
-            view = PaginatorButtons(p)
+            view = PaginatorButtons(p, ctx.author)
             view.message = await ctx.reply(
                 embed=p.current_page(),
                 view=view,
