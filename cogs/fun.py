@@ -11,14 +11,22 @@ class Fun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.hybrid_command(
-        name='nerd',
-        description=''
-    )
-    @commands.has_permissions(administrator=True)
-    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    @commands.command()
     async def nerd(self, ctx: commands.Context):
-        ...
+        nerd = discord.File('assets/nerd.mp4')
+
+        if ctx.message.reference:
+            r = await ctx.channel.fetch_message(
+                ctx.message.reference.message_id
+            )
+            await r.reply(
+                file=nerd,
+                mention_author=False
+            )
+        else:
+            await ctx.channel.send(file=nerd)
+
+        await ctx.message.delete(delay=0.5)
 
 
 async def setup(bot: commands.Bot):
