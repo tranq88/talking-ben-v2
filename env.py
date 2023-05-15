@@ -6,6 +6,10 @@ load_dotenv()
 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
 BOT_TEST_SERVER = int(os.getenv('BOT_TEST_SERVER_ID'))
+
+OSU_CLIENT_ID = int(os.getenv('OSU_CLIENT_ID'))
+OSU_CLIENT_SECRET = os.getenv('OSU_CLIENT_SECRET')
+
 GFG_SERVER = int(os.getenv('GFG_SERVER_ID'))
 GFG_GENERAL_ID = int(os.getenv('GFG_GENERAL_ID'))
 GFG_NSFW_ID = int(os.getenv('GFG_NSFW_ID'))
