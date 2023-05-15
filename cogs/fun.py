@@ -2,7 +2,10 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
-from env import BOT_TEST_SERVER, GFG_SERVER
+from env import BOT_TEST_SERVER, GFG_SERVER, GFG_NSFW_ID
+
+from datetime import datetime
+import pytz
 
 
 class Fun(commands.Cog):
@@ -38,6 +41,32 @@ class Fun(commands.Cog):
             await ctx.channel.send(file=nerd)
 
         await ctx.message.delete(delay=0.5)
+
+    @commands.hybrid_command(
+        name='ballout',
+        description="IT'S FRIDAY. BALL OUT!"
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def ballout(self, ctx: commands.Context):
+        if ctx.interaction:
+            await ctx.interaction.response.send_message(
+                "Use b!ballout instead (i'm too lazy to implement this one)",
+                ephemeral=True
+            )
+            return
+
+        pt = pytz.timezone('America/Vancouver')
+        weekday = datetime.now(pt).weekday()
+
+        if weekday != 4:
+            await ctx.reply("It's not Friday in Pacific Time yet...")
+            return
+
+        if ctx.channel.id != GFG_NSFW_ID:
+            await ctx.reply(f'<#{GFG_NSFW_ID}>')
+            return
+
+        await ctx.channel.send(file=discord.File('assets/ballout.png'))
 
 
 async def setup(bot: commands.Bot):
