@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import Message
 
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_LOGS_ID
 
@@ -11,7 +12,7 @@ class Logger(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message_delete(self, m: discord.Message):
+    async def on_message_delete(self, m: Message):
         em = discord.Embed(
             description=(
                 f"**Message sent by** <@{m.author.id}> "
@@ -21,6 +22,25 @@ class Logger(commands.Cog):
             timestamp=discord.utils.utcnow()
         )
         em.set_author(name=m.author, icon_url=m.author.avatar.url)
+
+        await self.bot.get_channel(GFG_LOGS_ID).send(embed=em)
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, before: Message, after: Message):
+        if after.embeds:
+            return
+
+        em = discord.Embed(
+            description=(
+                f'**Message edited in** <#{before.channel.id}> '
+                f'[Jump to Message]({before.jump_url})'
+            ),
+            colour=discord.Colour.from_rgb(186, 69, 15),
+            timestamp=discord.utils.utcnow()
+        )
+        em.set_author(name=before.author, icon_url=before.author.avatar.url)
+        em.add_field(name='**Before**', value=before.content, inline=False)
+        em.add_field(name='**After**', value=after.content, inline=False)
 
         await self.bot.get_channel(GFG_LOGS_ID).send(embed=em)
 
