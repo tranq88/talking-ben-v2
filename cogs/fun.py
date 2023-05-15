@@ -11,8 +11,19 @@ class Fun(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.hybrid_command(
+        name='nerd',
+        description='Send a nerd speech bubble. Also works as a reply.'
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
     async def nerd(self, ctx: commands.Context):
+        if ctx.interaction:
+            await ctx.interaction.response.send_message(
+                "Use b!nerd instead (i'm too lazy to implement this one)",
+                ephemeral=True
+            )
+            return
+
         nerd = discord.File('assets/nerd.mp4')
 
         if ctx.message.reference:
