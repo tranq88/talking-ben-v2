@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import Message
+from discord import Message, Member, VoiceState
 
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_LOGS_ID
 
@@ -43,6 +43,37 @@ class Logger(commands.Cog):
         em.add_field(name='**After**', value=after.content, inline=False)
 
         await self.bot.get_channel(GFG_LOGS_ID).send(embed=em)
+
+    @commands.Cog.listener()
+    async def on_voice_state_update(self,
+                                    member: Member,
+                                    before: VoiceState,
+                                    after: VoiceState):
+        if not before.channel and after.channel:  # on vc join
+            em = discord.Embed(
+                description=(
+                    f'<@{member.id}> **joined voice channel** '
+                    f'<#{after.channel.id}>'
+                ),
+                colour=discord.Colour.from_rgb(67, 181, 130),
+                timestamp=discord.utils.utcnow()
+            )
+            em.set_author(name=member, icon_url=member.avatar.url)
+
+            await self.bot.get_channel(GFG_LOGS_ID).send(embed=em)
+
+        elif before.channel and not after.channel:  # on vc leave
+            em = discord.Embed(
+                description=(
+                    f'<@{member.id}> **left voice channel** '
+                    f'<#{before.channel.id}>'
+                ),
+                colour=discord.Colour.from_rgb(240, 60, 50),
+                timestamp=discord.utils.utcnow()
+            )
+            em.set_author(name=member, icon_url=member.avatar.url)
+
+            await self.bot.get_channel(GFG_LOGS_ID).send(embed=em)
 
 
 async def setup(bot: commands.Bot):
