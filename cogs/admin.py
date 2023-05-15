@@ -25,6 +25,19 @@ class Admin(commands.Cog):
             await ctx.message.delete()
             await ctx.channel.send(message)
 
+    @commands.hybrid_command(
+        name='purge',
+        description='Bulk delete recent messages.'
+    )
+    @commands.has_permissions(administrator=True)
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def purge(self, ctx: commands.Context, amount: int):
+        await ctx.defer(ephemeral=True)
+        await ctx.channel.purge(limit=amount + 1)
+
+        if ctx.interaction:
+            await ctx.interaction.followup.send(f'Purged {amount} message(s).')
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Admin(bot),
