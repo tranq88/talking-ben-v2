@@ -9,9 +9,11 @@ class Paginator:
                  url: str,
                  elements: list[str],
                  max_per_page: int,
-                 extra_footer: str = '',
+                 author: dict = None,
                  formatter: str = '',
-                 body_header: str = ''):
+                 body_header: str = '',
+                 image_url: str = None,
+                 extra_footer: str = ''):
         """
         Split the strings in <elements> into pages,
         where each page has at most <max_per_page> strings.
@@ -34,6 +36,15 @@ class Paginator:
         ]
 
         for i, p in enumerate(self.pages):
+            if author:
+                p.set_author(
+                    name=author['name'],
+                    url=author['url'],
+                    icon_url=author['icon_url']
+                )
+            if image_url:
+                p.set_image(url=image_url)
+
             p.set_thumbnail(url=url)
             p.set_footer(text=f'Page {i+1} of {len(self)}{extra_footer}')
 
