@@ -32,8 +32,8 @@ class Bot(commands.Bot):
             # await self.tree.sync()
             await self.tree.sync(
                 guild=discord.Object(id=BOT_TEST_SERVER))
-            # await self.tree.sync(
-            #     guild=discord.Object(id=GFG_SERVER))
+            await self.tree.sync(
+                guild=discord.Object(id=GFG_SERVER))
             self.synced = True
 
         print(f'Logged in as {self.user}')
