@@ -6,7 +6,7 @@ class Paginator:
 
     def __init__(self,
                  title: str,
-                 url: str,
+                 thumbnail_url: str,
                  elements: list[str],
                  max_per_page: int,
                  author: dict = None,
@@ -45,7 +45,7 @@ class Paginator:
             if image_url:
                 p.set_image(url=image_url)
 
-            p.set_thumbnail(url=url)
+            p.set_thumbnail(url=thumbnail_url)
             p.set_footer(text=f'Page {i+1} of {len(self)}{extra_footer}')
 
         self.current_index = 0

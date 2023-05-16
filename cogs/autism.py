@@ -56,7 +56,7 @@ class Autism(commands.Cog):
         title = f'{GFG_GOLDFISH_EMOTE} GOLDFISH GANG 😈 AUTISM 🙀 RANKINGS 🏅'
         p = Paginator(
             title=title,
-            url=ctx.guild.icon.url,
+            thumbnail_url=ctx.guild.icon.url,
             elements=lines,
             max_per_page=10,
             extra_footer=f' | Ranked Members: {len(lines)}',

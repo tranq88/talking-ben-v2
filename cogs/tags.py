@@ -138,7 +138,7 @@ class Tags(commands.Cog):
 
         p = Paginator(
             title='Tags for Goldfish Gang',
-            url=ctx.guild.icon.url,
+            thumbnail_url=ctx.guild.icon.url,
             elements=['b!' + tag for tag in tags],
             max_per_page=10,
             extra_footer=f' | Sort: {sort_type}'
