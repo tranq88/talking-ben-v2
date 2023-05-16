@@ -1,4 +1,5 @@
 import discord
+from datetime import datetime
 
 
 class Paginator:
@@ -13,7 +14,8 @@ class Paginator:
                  formatter: str = '',
                  body_header: str = '',
                  image_urls: list[str] = None,
-                 extra_footer: str = ''):
+                 extra_footer: str = '',
+                 timestamps: list[datetime] = None):
         """
         Split the strings in <elements> into pages,
         where each page has at most <max_per_page> strings.
@@ -46,6 +48,9 @@ class Paginator:
                 # this is error prone - IndexError is raised if
                 # len(self.pages) != len(image_urls)
                 p.set_image(url=image_urls[i])
+            if timestamps:
+                # error prone for the same reason above
+                p.timestamp = timestamps[i]
 
             p.set_thumbnail(url=thumbnail_url)
             p.set_footer(text=f'Page {i+1} of {len(self)}{extra_footer}')
