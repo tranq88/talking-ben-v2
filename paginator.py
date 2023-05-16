@@ -12,7 +12,7 @@ class Paginator:
                  author: dict = None,
                  formatter: str = '',
                  body_header: str = '',
-                 image_url: str = None,
+                 image_urls: list[str] = None,
                  extra_footer: str = ''):
         """
         Split the strings in <elements> into pages,
@@ -42,8 +42,10 @@ class Paginator:
                     url=author['url'],
                     icon_url=author['icon_url']
                 )
-            if image_url:
-                p.set_image(url=image_url)
+            if image_urls:
+                # this is error prone - IndexError is raised if
+                # len(self.pages) != len(image_urls)
+                p.set_image(url=image_urls[i])
 
             p.set_thumbnail(url=thumbnail_url)
             p.set_footer(text=f'Page {i+1} of {len(self)}{extra_footer}')
