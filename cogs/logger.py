@@ -27,7 +27,7 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: Message, after: Message):
-        if after.embeds:
+        if after.embeds or before.author == self.bot.user:
             return
 
         em = discord.Embed(
