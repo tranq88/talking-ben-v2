@@ -13,6 +13,9 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, m: Message):
+        if m.guild.id != GFG_SERVER:
+            return
+
         em = discord.Embed(
             description=(
                 f"**Message sent by** <@{m.author.id}> "
@@ -27,6 +30,9 @@ class Logger(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: Message, after: Message):
+        if before.guild.id != GFG_SERVER:
+            return
+
         if after.embeds or before.author == self.bot.user:
             return
 
@@ -49,6 +55,9 @@ class Logger(commands.Cog):
                                     member: Member,
                                     before: VoiceState,
                                     after: VoiceState):
+        if member.guild.id != GFG_SERVER:
+            return
+
         if not before.channel and after.channel:  # on vc join
             em = discord.Embed(
                 description=(
