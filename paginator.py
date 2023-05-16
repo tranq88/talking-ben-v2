@@ -85,7 +85,7 @@ class PaginatorButtons(discord.ui.View):
         self.clear_items()
         await self.message.edit(view=self)
 
-    @discord.ui.button(label='Prev', disabled=True)
+    @discord.ui.button(label='◂', disabled=True)
     async def prev_page(self,
                         interaction: discord.Interaction,
                         button: discord.ui.Button):
@@ -103,7 +103,7 @@ class PaginatorButtons(discord.ui.View):
             view=self
         )
 
-    @discord.ui.button(label='Next')
+    @discord.ui.button(label='▸')
     async def next_page(self,
                         interaction: discord.Interaction,
                         button: discord.ui.Button):
