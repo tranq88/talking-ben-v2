@@ -38,6 +38,10 @@ class Bot(commands.Bot):
 
         print(f'Logged in as {self.user}')
 
+        for guild in self.guilds:
+            if guild.name not in ['bot test server', 'Goldfish Gang']:
+                await guild.leave()
+
 
 if __name__ == '__main__':
     bot = Bot()
