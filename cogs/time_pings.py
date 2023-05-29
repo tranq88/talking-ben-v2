@@ -14,7 +14,6 @@ class TimePings(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.gfg_general = bot.get_channel(GFG_GENERAL_ID)
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -84,7 +83,8 @@ class TimePings(commands.Cog):
     @tasks.loop(hours=24)
     async def time_pm_on(self):
         config = read_json('config.json')
-        await self.gfg_general.send(f'<@{config["time_pingee"]}> time')
+        gfg_general = self.bot.get_channel(GFG_GENERAL_ID)
+        await gfg_general.send(f'<@{config["time_pingee"]}> time')
 
     @time_pm_on.before_loop
     async def wait_until_727pm_on(self):
@@ -102,7 +102,8 @@ class TimePings(commands.Cog):
     @tasks.loop(hours=24)
     async def time_pm_ab(self):
         config = read_json('config.json')
-        await self.gfg_general.send(f'<@{config["time_pingee"]}> alberta time')
+        gfg_general = self.bot.get_channel(GFG_GENERAL_ID)
+        await gfg_general.send(f'<@{config["time_pingee"]}> alberta time')
 
     @time_pm_ab.before_loop
     async def wait_until_727pm_ab(self):
@@ -120,7 +121,8 @@ class TimePings(commands.Cog):
     @tasks.loop(hours=24)
     async def time_pm_bc(self):
         config = read_json('config.json')
-        await self.gfg_general.send(f'<@{config["time_pingee"]}> bc time')
+        gfg_general = self.bot.get_channel(GFG_GENERAL_ID)
+        await gfg_general.send(f'<@{config["time_pingee"]}> bc time')
 
     @time_pm_bc.before_loop
     async def wait_until_727pm_bc(self):
