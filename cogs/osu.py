@@ -3,8 +3,10 @@ from discord.ext import commands
 from discord import app_commands
 
 from env import BOT_TEST_SERVER, GFG_SERVER, OSU_CLIENT_ID, OSU_CLIENT_SECRET
+from jsons import read_json
 
 from paginator import Paginator, PaginatorButtons
+from account_registration import AccountRegistration
 from ossapi import OssapiAsync
 
 
@@ -72,6 +74,47 @@ class Osu(commands.Cog):
                 view=view,
                 mention_author=False
             )
+
+    @app_commands.command(
+        name='register',
+        description=('Register an account on the '
+                     'Goldfish Gang osu! private server.')
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def register(self, interaction: discord.Interaction):
+        server_accs = read_json('server_accs.json')
+
+        for acc in server_accs:
+            if server_accs[acc]['discord_id'] == interaction.user.id:
+                await interaction.response.send_message(
+                    f'You are registered on osu!Goldfish as **{acc}**.',
+                    ephemeral=True
+                )
+                return
+
+        await interaction.response.send_modal(AccountRegistration())
+
+    @commands.hybrid_command(
+        name='privserver',
+        description=('View instructions on how to play on the '
+                     'Goldfish Gang osu! private server.')
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def privserver(self, ctx: commands.Context):
+        await ctx.reply(
+            '**How to play on osu!Goldfish:**\n\n'
+
+            '**1.** Register for an account with ``/register``.\n'
+            '**2.** Create a copy of your osu! shortcut.\n'
+            '**3.** Right click your new shortcut and click ``Properties``.\n'
+            '**4.** In ``Target``, add ``-devserver victoryu.dev`` to the '
+            'end of the path so that it looks something like '
+            '``C:\\...\\osu!\\osu!.exe -devserver victoryu.dev``.\n'
+            '**5.** Log in with your credentials and play!\n\n'
+
+            '**Note: This server is new so expect things to be scuffed.**',
+            ephemeral=True
+        )
 
 
 async def setup(bot: commands.Bot):
