@@ -8,7 +8,7 @@ from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER
 from typing import Optional
 
-from paginator import Paginator, PaginatorButtons
+from utils.paginator import Paginator, PaginatorButtons
 
 
 class Tags(commands.Cog):

@@ -5,8 +5,8 @@ from discord import app_commands
 from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_GOLDFISH_EMOTE
 
-from paginator import Paginator, PaginatorButtons
-from member_conv import MemberConv
+from utils.paginator import Paginator, PaginatorButtons
+from utils.member_conv import MemberConv
 
 
 class Autism(commands.Cog):

@@ -5,8 +5,9 @@ from discord import app_commands
 from env import BOT_TEST_SERVER, GFG_SERVER, OSU_CLIENT_ID, OSU_CLIENT_SECRET
 from jsons import read_json
 
-from paginator import Paginator, PaginatorButtons
-from account_registration import AccountRegistration
+from utils.paginator import Paginator, PaginatorButtons
+from utils.account_registration import AccountRegistration
+from utils.gfg_api import get_player_scores
 from ossapi import OssapiAsync
 
 
@@ -115,6 +116,15 @@ class Osu(commands.Cog):
             '**Note: This server is new so expect things to be scuffed.**',
             ephemeral=True
         )
+
+    @commands.hybrid_command(
+        name='recent',
+        aliases=['rs'],
+        description=("Get a user's most recent play(s) on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def recent(self, ctx: commands.Context, user: str = None):
+        ...
 
 
 async def setup(bot: commands.Bot):

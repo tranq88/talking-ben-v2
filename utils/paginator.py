@@ -1,10 +1,11 @@
 import discord
 from datetime import datetime
+from typing import Any
 
 
 class Paginator:
     """Pagination with embeds."""
-
+    # TODO: abstract this class way more
     def __init__(self,
                  title: str,
                  thumbnail_url: str,
@@ -71,6 +72,13 @@ class Paginator:
 
     def goto_page(self, index: int):
         self.current_index = index
+
+
+class EmbedPaginator(Paginator):
+    """Pagination with embeds"""
+    def __init__(self, pages: list[Any]):
+        self.pages = pages
+        self.current_index = 0
 
 
 class PaginatorButtons(discord.ui.View):
