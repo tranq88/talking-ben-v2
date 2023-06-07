@@ -1,60 +1,28 @@
 import discord
-from datetime import datetime
 from typing import Any
 
 
 class Paginator:
     """Pagination with embeds."""
-    # TODO: abstract this class way more
-    def __init__(self,
-                 title: str,
-                 thumbnail_url: str,
-                 elements: list[str],
-                 max_per_page: int,
-                 author: dict = None,
-                 formatter: str = '',
-                 body_header: str = '',
-                 image_urls: list[str] = None,
-                 extra_footer: str = '',
-                 timestamps: list[datetime] = None):
-        """
-        Split the strings in <elements> into pages,
-        where each page has at most <max_per_page> strings.
-        """
-        partitions = [
-            elements[i:i+max_per_page]
-            for i in range(0, len(elements), max_per_page)
-        ]
+    def __init__(self, pages: list[discord.Embed]):
+        # partitions = [
+        #     elements[i:i+max_per_page]
+        #     for i in range(0, len(elements), max_per_page)
+        # ]
 
-        for i, p in enumerate(partitions):
-            partitions[i] = '\n'.join(p)
+        # for i, p in enumerate(partitions):
+        #     partitions[i] = '\n'.join(p)
 
-        self.pages = [
-            discord.Embed(
-                title=title,
-                description=f'{formatter}{body_header}{partition}{formatter}',
-                color=discord.Color.from_rgb(181, 142, 101)
-            )
-            for partition in partitions
-        ]
+        self.pages = pages
 
+        # put the page number in front of any footer the embed has
         for i, p in enumerate(self.pages):
-            if author:
-                p.set_author(
-                    name=author['name'],
-                    url=author['url'],
-                    icon_url=author['icon_url']
+            p.set_footer(
+                text=(
+                    f'Page {i+1} of {len(self)}'
+                    f'{f" | {p.footer.text}" if p.footer.text else ""}'
                 )
-            if image_urls:
-                # this is error prone - IndexError is raised if
-                # len(self.pages) != len(image_urls)
-                p.set_image(url=image_urls[i])
-            if timestamps:
-                # error prone for the same reason above
-                p.timestamp = timestamps[i]
-
-            p.set_thumbnail(url=thumbnail_url)
-            p.set_footer(text=f'Page {i+1} of {len(self)}{extra_footer}')
+            )
 
         self.current_index = 0
 
@@ -72,13 +40,6 @@ class Paginator:
 
     def goto_page(self, index: int):
         self.current_index = index
-
-
-class EmbedPaginator(Paginator):
-    """Pagination with embeds"""
-    def __init__(self, pages: list[Any]):
-        self.pages = pages
-        self.current_index = 0
 
 
 class PaginatorButtons(discord.ui.View):
