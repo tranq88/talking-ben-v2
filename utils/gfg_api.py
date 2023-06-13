@@ -2,6 +2,7 @@
 
 import requests
 from datetime import datetime
+from ossapi import Mod
 
 API_URL = 'https://api.victoryu.dev/v1/'
 
@@ -71,7 +72,7 @@ class Score:
         self.pp = data['pp']
         self.acc = data['acc']
         self.max_combo = data['max_combo']
-        self.mods = data['mods']
+        self.mods = Mod(data['mods'])
         self.n300 = data['n300']
         self.n100 = data['n100']
         self.n50 = data['n50']
@@ -82,6 +83,7 @@ class Score:
         self.play_time = datetime.fromisoformat(data['play_time'])
         self.perfect = bool(data['perfect'])
         self.beatmap = Beatmap(data['beatmap'])
+        self.time_elapsed = data['time_elapsed']
 
 
 def api_get(endpoint, params=None):
@@ -98,7 +100,7 @@ def get_player_count():
     return res['counts']
 
 
-def get_player_info(uid=None, name=None, mode='0'):
+def get_player_info(uid=None, name=None, mode='0') -> User:
     # Returns player stats for the given gamemode
     json = ''
     if uid:

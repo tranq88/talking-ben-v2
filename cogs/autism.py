@@ -35,7 +35,8 @@ class Autism(commands.Cog):
         for pair in descending_lb:
             score = pair[0]
             for user_id in pair[1]:
-                user = self.bot.get_user(user_id)
+                #user = self.bot.get_user(user_id)
+                user = str(user_id)
                 if not user:
                     continue
 
@@ -44,7 +45,7 @@ class Autism(commands.Cog):
                     str(user)[:-5]  # username without discriminator
                 ))
 
-        lines = [
+        lines = [  # each line of the leaderboard
             '{:6s}{:7s}{}'.format(
                 f'[#{str(i + 1)}]',
                 pair[0].center(5),
@@ -53,16 +54,31 @@ class Autism(commands.Cog):
             for i, pair in enumerate(unpacked)
         ]
 
+        # partition into groups of 10 lines
+        partitions = [
+            '\n'.join(lines[i:i+10])
+            for i in range(0, len(lines), 10)
+        ]
+
+        # for i, p in enumerate(partitions):
+        #     partitions[i] = '\n'.join(p)
+
         title = f'{GFG_GOLDFISH_EMOTE} GOLDFISH GANG 😈 AUTISM 🙀 RANKINGS 🏅'
-        p = Paginator(
-            title=title,
-            thumbnail_url=ctx.guild.icon.url,
-            elements=lines,
-            max_per_page=10,
-            extra_footer=f' | Ranked Members: {len(lines)}',
-            formatter='```',
-            body_header='{:6s}{:7s}{}\n'.format('Rank', 'Score', 'Username')
-        )
+        pages: list[discord.Embed] = []
+        headers = f'{"Rank":6s}{"Score":7s}Username\n'
+
+        for p in partitions:
+            pages.append(discord.Embed(
+                title=title,
+                description=f'```{headers}{p}```',
+                colour=discord.Colour.from_rgb(181, 142, 101)
+            ))
+
+        for p in pages:
+            p.set_thumbnail(url=ctx.guild.icon.url)
+            p.set_footer(text=f'Ranked Members: {len(lines)}')
+
+        p = Paginator(pages=pages)
 
         if len(p) == 1:  # send without buttons
             await ctx.reply(

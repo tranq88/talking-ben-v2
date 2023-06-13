@@ -7,7 +7,7 @@ from jsons import read_json
 
 from utils.paginator import Paginator, PaginatorButtons
 from utils.account_registration import AccountRegistration
-from utils.gfg_api import get_player_scores
+from utils.gfg_api import get_player_scores, get_player_info
 from ossapi import OssapiAsync
 
 
@@ -123,9 +123,39 @@ class Osu(commands.Cog):
         description=("Get a user's most recent play(s) on osu!Goldfish.")
     )
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
-    async def recent(self, ctx: commands.Context, user: str = None):
-        ...
+    async def recent(self, ctx: commands.Context, username: str = None):
+        user_scores = get_player_scores(name=username)
+        pages: list[discord.Embed] = []
 
+        for score in user_scores:
+
+            embed = discord.Embed(description=f"▸ {score.grade} ▸ **{score.pp}PP** (533.81PP for 97.62% FC) ▸ {score.acc:.2f}%\n▸ {score.score:,} ▸ x{score.max_combo}/{score.beatmap.max_combo} ▸ [{score.n300}/{score.n100}/{score.n50}/{score.nmiss}]",
+                      timestamp=score.play_time)
+
+            embed.set_author(name=f'{score.beatmap.title} [{score.beatmap.difficulty}] +{score.mods.short_name()} [{score.beatmap.star_rating:.2f}★]',
+                            url=f'https://osu.ppy.sh/b/{score.beatmap.diff_id}',
+                            icon_url=f'https://a.victoryu.dev/{get_player_info(name=username).id}')
+
+            embed.set_thumbnail(url=f'https://b.ppy.sh/thumb/{score.beatmap.set_id}l.jpg')
+
+            embed.set_footer(text=f'{"WYSI" if score.max_combo == 727 else "On osu!Goldfish server"}',
+                            icon_url=None)
+            
+            pages.append(embed)
+        
+        p = Paginator(pages=pages, show_index=False)
+        if len(p) == 1:  # send without buttons
+            await ctx.reply(
+                embed=p.current_page(),
+                mention_author=False
+            )
+        else:
+            view = PaginatorButtons(p, ctx.author)
+            view.message = await ctx.reply(
+                embed=p.current_page(),
+                view=view,
+                mention_author=False
+            )
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Osu(bot),

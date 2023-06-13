@@ -4,7 +4,7 @@ from typing import Any
 
 class Paginator:
     """Pagination with embeds."""
-    def __init__(self, pages: list[discord.Embed]):
+    def __init__(self, pages: list[discord.Embed], show_index: bool = True):
         # partitions = [
         #     elements[i:i+max_per_page]
         #     for i in range(0, len(elements), max_per_page)
@@ -16,13 +16,14 @@ class Paginator:
         self.pages = pages
 
         # put the page number in front of any footer the embed has
-        for i, p in enumerate(self.pages):
-            p.set_footer(
-                text=(
-                    f'Page {i+1} of {len(self)}'
-                    f'{f" | {p.footer.text}" if p.footer.text else ""}'
-                )
-            )
+        
+        # for i, p in enumerate(self.pages):
+        #     p.set_footer(
+        #         text=(
+        #             f'{f"Page {i+1} of {len(self)}" if show_index else ""}'
+        #             f'{f" | {p.footer.text}" if p.footer.text and show_index else ""}'
+        #         )
+        #     )
 
         self.current_index = 0
 
