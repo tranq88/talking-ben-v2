@@ -5,7 +5,7 @@ from discord import app_commands
 from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER, GFG_GOLDFISH_EMOTE
 
-from utils.paginator import Paginator, PaginatorButtons
+from utils.paginator import Paginator, reply_paginator
 from utils.member_conv import MemberConv
 
 
@@ -31,19 +31,15 @@ class Autism(commands.Cog):
         )
 
         # unpack each user from <score:users> into its own pair
-        unpacked = []
+        unpacked: list[tuple[str, str]] = []
         for pair in descending_lb:
             score = pair[0]
             for user_id in pair[1]:
-                #user = self.bot.get_user(user_id)
-                user = str(user_id)
+                user = self.bot.get_user(user_id)
                 if not user:
                     continue
 
-                unpacked.append((
-                    score,
-                    str(user)[:-5]  # username without discriminator
-                ))
+                unpacked.append((score, user.global_name))
 
         lines = [  # each line of the leaderboard
             '{:6s}{:7s}{}'.format(
@@ -68,30 +64,17 @@ class Autism(commands.Cog):
         headers = f'{"Rank":6s}{"Score":7s}Username\n'
 
         for p in partitions:
-            pages.append(discord.Embed(
+            em = discord.Embed(
                 title=title,
                 description=f'```{headers}{p}```',
                 colour=discord.Colour.from_rgb(181, 142, 101)
-            ))
-
-        for p in pages:
-            p.set_thumbnail(url=ctx.guild.icon.url)
-            p.set_footer(text=f'Ranked Members: {len(lines)}')
-
-        p = Paginator(pages=pages)
-
-        if len(p) == 1:  # send without buttons
-            await ctx.reply(
-                embed=p.current_page(),
-                mention_author=False
             )
-        else:
-            view = PaginatorButtons(p, ctx.author)
-            view.message = await ctx.reply(
-                embed=p.current_page(),
-                view=view,
-                mention_author=False
-            )
+            em.set_thumbnail(url=ctx.guild.icon.url)
+            em.set_footer(text=f'Ranked Members: {len(lines)}')
+
+            pages.append(em)
+
+        await reply_paginator(paginator=Paginator(pages=pages), ctx=ctx)
 
     @commands.hybrid_command(
         name='autismadd',

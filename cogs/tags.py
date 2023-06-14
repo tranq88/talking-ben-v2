@@ -8,7 +8,7 @@ from jsons import read_json, write_json
 from env import BOT_TEST_SERVER, GFG_SERVER
 from typing import Optional
 
-from utils.paginator import Paginator, PaginatorButtons
+from utils.paginator import Paginator, reply_paginator
 
 
 class Tags(commands.Cog):
@@ -136,26 +136,28 @@ class Tags(commands.Cog):
             # <tags> is already sorted by oldest first
             sort_type = sort.name
 
-        p = Paginator(
-            title='Tags for Goldfish Gang',
-            thumbnail_url=ctx.guild.icon.url,
-            elements=['b!' + tag for tag in tags],
-            max_per_page=10,
-            extra_footer=f' | Sort: {sort_type}'
-        )
+        lines = ['b!' + tag for tag in tags]  # each line of the tag list
 
-        if len(p) == 1:  # send without buttons
-            await ctx.reply(
-                embed=p.current_page(),
-                mention_author=False
+        # partition into groups of 10 lines
+        partitions = [
+            '\n'.join(lines[i:i+10])
+            for i in range(0, len(lines), 10)
+        ]
+
+        pages: list[discord.Embed] = []
+
+        for p in partitions:
+            em = discord.Embed(
+                title='Tags for Goldfish Gang',
+                description=p,
+                colour=discord.Colour.from_rgb(181, 142, 101)
             )
-        else:
-            view = PaginatorButtons(p, ctx.author)
-            view.message = await ctx.reply(
-                embed=p.current_page(),
-                view=view,
-                mention_author=False
-            )
+            em.set_thumbnail(url=ctx.guild.icon.url)
+            em.set_footer(text=f'Sort: {sort_type}')
+
+            pages.append(em)
+
+        await reply_paginator(paginator=Paginator(pages=pages), ctx=ctx)
 
 
 async def setup(bot: commands.Bot):

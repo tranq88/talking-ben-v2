@@ -1,8 +1,22 @@
 # osu!Goldfish API Wrapper
 
+from typing import Optional
 import requests
 from datetime import datetime
 from ossapi import Mod
+
+from utils.emojis import (
+    RANKING_SSH,
+    RANKING_SS,
+    RANKING_SH,
+    RANKING_S,
+    RANKING_A,
+    RANKING_B,
+    RANKING_C,
+    RANKING_D,
+    RANKING_F
+)
+
 
 API_URL = 'https://api.victoryu.dev/v1/'
 
@@ -50,7 +64,9 @@ class Beatmap:
         self.title = data['title']
         self.difficulty = data['version']
         self.creator = data['creator']
-        self.last_update = datetime.fromisoformat(data['last_update'])
+        self.last_update = datetime.fromisoformat(
+            data['last_update'] + '+00:00'
+        )
         self.length = data['total_length']
         self.max_combo = data['max_combo']
         self.status = data['status']
@@ -80,7 +96,7 @@ class Score:
         self.grade = data['grade']
         self.status = data['status']
         self.mode = data['mode']
-        self.play_time = datetime.fromisoformat(data['play_time'])
+        self.play_time = datetime.fromisoformat(data['play_time'] + '+00:00')
         self.perfect = bool(data['perfect'])
         self.beatmap = Beatmap(data['beatmap'])
         self.time_elapsed = data['time_elapsed']
@@ -135,3 +151,38 @@ def get_player_scores(uid=None, name=None, scope='recent', mode=0) \
     for score in json['scores']:
         scores.append(Score(score))
     return scores
+
+
+def get_grade_emoji(grade: str) -> Optional[str]:
+    """Return the corresponding emoji for the given osu! score grade."""
+    if grade == 'SSH':
+        return RANKING_SSH
+    elif grade == 'SS':
+        return RANKING_SS
+    elif grade == 'SH':
+        return RANKING_SH
+    elif grade == 'S':
+        return RANKING_S
+    elif grade == 'A':
+        return RANKING_A
+    elif grade == 'B':
+        return RANKING_B
+    elif grade == 'C':
+        return RANKING_C
+    elif grade == 'D':
+        return RANKING_D
+    elif grade == 'F':
+        return RANKING_F
+
+
+def calc_map_completion(score: Score) -> float:
+    """Calculate the percentage of map completed as given by <score>."""
+    return score.time_elapsed / 1000 / score.beatmap.length * 100
+
+
+def calc_fc_pp():
+    return '1'
+
+
+def calc_fc_acc():
+    return '1'

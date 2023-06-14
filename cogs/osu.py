@@ -2,12 +2,20 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
+from typing import Optional
 from env import BOT_TEST_SERVER, GFG_SERVER, OSU_CLIENT_ID, OSU_CLIENT_SECRET
 from jsons import read_json
 
-from utils.paginator import Paginator, PaginatorButtons
+from utils.paginator import Paginator, reply_paginator
 from utils.account_registration import AccountRegistration
-from utils.gfg_api import get_player_scores, get_player_info
+from utils.gfg_api import (
+    get_player_scores,
+    get_player_info,
+    get_grade_emoji,
+    calc_map_completion
+)
+from utils.gfg_server_accs import find_user
+from requests.exceptions import HTTPError
 from ossapi import OssapiAsync
 
 
@@ -43,38 +51,34 @@ class Osu(commands.Cog):
             await ctx.reply('User has no badges 💀')
             return
 
-        p = Paginator(
-            author={
-                'name': (
+        pages: list[discord.Embed] = []
+
+        for badge in user.badges:
+            em = discord.Embed(
+                title=f'Most recently awarded badge(s) for {user.username}',
+                description=badge.description,
+                timestamp=badge.awarded_at,
+                colour=discord.Colour.from_rgb(181, 142, 101)
+            )
+
+            em.set_author(
+                name=(
                     f'{user.username}: {user.statistics.pp:,}pp '
                     f'(#{user.statistics.global_rank:,} '
                     f'{user.country_code}{user.statistics.country_rank})'
                 ),
-                'url': f'https://osu.ppy.sh/users/{user.id}',
-                'icon_url': (
+                url=f'https://osu.ppy.sh/users/{user.id}',
+                icon_url=(
                     f'https://assets.ppy.sh/old-flags/{user.country_code}.png'
                 )
-            },
-            thumbnail_url=f'http://s.ppy.sh/a/{user.id}',
-            title=f'Most recently awarded badge(s) for {user.username}',
-            elements=[badge.description for badge in user.badges],
-            max_per_page=1,
-            image_urls=[badge.image_url for badge in user.badges],
-            timestamps=[badge.awarded_at for badge in user.badges]
-        )
+            )
 
-        if len(p) == 1:  # send without buttons
-            await ctx.reply(
-                embed=p.current_page(),
-                mention_author=False
-            )
-        else:
-            view = PaginatorButtons(p, ctx.author)
-            view.message = await ctx.reply(
-                embed=p.current_page(),
-                view=view,
-                mention_author=False
-            )
+            em.set_thumbnail(url=f'http://s.ppy.sh/a/{user.id}')
+            em.set_image(url=badge.image_url)
+
+            pages.append(em)
+
+        await reply_paginator(paginator=Paginator(pages=pages), ctx=ctx)
 
     @app_commands.command(
         name='register',
@@ -123,39 +127,75 @@ class Osu(commands.Cog):
         description=("Get a user's most recent play(s) on osu!Goldfish.")
     )
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
-    async def recent(self, ctx: commands.Context, username: str = None):
-        user_scores = get_player_scores(name=username)
+    async def recent(self,
+                     ctx: commands.Context,
+                     username: Optional[str] = None):
+        await ctx.defer()
+
+        if not username:  # search for the user's account
+            server_accs = read_json('server_accs.json')
+            try:
+                username = find_user(server_accs, ctx.author.id)
+            except LookupError:
+                await ctx.reply('You are not registered on osu!Goldfish.')
+                return
+
+        try:
+            user = get_player_info(name=username)
+        except HTTPError:
+            await ctx.reply('User not found.')
+            return
+
+        user_scores = get_player_scores(name=user.name)
         pages: list[discord.Embed] = []
 
         for score in user_scores:
-
-            embed = discord.Embed(description=f"▸ {score.grade} ▸ **{score.pp}PP** (533.81PP for 97.62% FC) ▸ {score.acc:.2f}%\n▸ {score.score:,} ▸ x{score.max_combo}/{score.beatmap.max_combo} ▸ [{score.n300}/{score.n100}/{score.n50}/{score.nmiss}]",
-                      timestamp=score.play_time)
-
-            embed.set_author(name=f'{score.beatmap.title} [{score.beatmap.difficulty}] +{score.mods.short_name()} [{score.beatmap.star_rating:.2f}★]',
-                            url=f'https://osu.ppy.sh/b/{score.beatmap.diff_id}',
-                            icon_url=f'https://a.victoryu.dev/{get_player_info(name=username).id}')
-
-            embed.set_thumbnail(url=f'https://b.ppy.sh/thumb/{score.beatmap.set_id}l.jpg')
-
-            embed.set_footer(text=f'{"WYSI" if score.max_combo == 727 else "On osu!Goldfish server"}',
-                            icon_url=None)
-            
-            pages.append(embed)
-        
-        p = Paginator(pages=pages, show_index=False)
-        if len(p) == 1:  # send without buttons
-            await ctx.reply(
-                embed=p.current_page(),
-                mention_author=False
+            completion = (
+                f' ({calc_map_completion(score):.2f}%)' if score.grade == 'F'
+                else ''
             )
-        else:
-            view = PaginatorButtons(p, ctx.author)
-            view.message = await ctx.reply(
-                embed=p.current_page(),
-                view=view,
-                mention_author=False
+            em = discord.Embed(
+                description=(
+                    f"▸ {get_grade_emoji(score.grade)}{completion} ▸ "
+                    f"**{score.pp:.2f}pp** ▸ "
+                    # f"({calc_fc_pp()}PP for {calc_fc_acc()}% FC) ▸ "
+                    f"{score.acc:.2f}% ▸ "
+                    f"<t:{int(score.play_time.timestamp())}:R>"
+                    f"\n▸ {score.score:,} ▸ "
+                    f"x{score.max_combo}/{score.beatmap.max_combo} ▸ "
+                    f"[{score.n300}/{score.n100}/{score.n50}/{score.nmiss}]"
+                ),
+                timestamp=score.play_time,
+                colour=discord.Colour.from_rgb(181, 142, 101)
             )
+
+            em.set_author(
+                name=(
+                    f'{score.beatmap.title} [{score.beatmap.difficulty}] '
+                    f'+{score.mods.short_name()} '
+                    f'[{score.beatmap.star_rating:.2f}★]'
+                ),
+                url=f'https://osu.ppy.sh/b/{score.beatmap.diff_id}',
+                icon_url=f'https://a.victoryu.dev/{user.id}'
+            )
+
+            em.set_thumbnail(
+                url=f'https://b.ppy.sh/thumb/{score.beatmap.set_id}l.jpg'
+            )
+
+            footer = (
+                "WYSI" if score.max_combo == 727 else "On osu!Goldfish server"
+            )
+            em.set_footer(text=footer)
+
+            pages.append(em)
+
+        await reply_paginator(
+            paginator=Paginator(pages=pages, show_index=False),
+            ctx=ctx,
+            content=f'**Recent osu! Standard Play for {user.name}:**'
+        )
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Osu(bot),
