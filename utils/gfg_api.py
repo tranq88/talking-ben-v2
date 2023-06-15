@@ -155,9 +155,9 @@ def get_player_scores(uid=None, name=None, scope='recent', mode=0) \
 
 def get_grade_emoji(grade: str) -> Optional[str]:
     """Return the corresponding emoji for the given osu! score grade."""
-    if grade == 'SSH':
+    if grade == 'XH':
         return RANKING_SSH
-    elif grade == 'SS':
+    elif grade == 'X':
         return RANKING_SS
     elif grade == 'SH':
         return RANKING_SH
