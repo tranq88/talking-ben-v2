@@ -7,7 +7,7 @@ from env import BOT_TEST_SERVER, GFG_SERVER, OSU_CLIENT_ID, OSU_CLIENT_SECRET
 from jsons import read_json
 
 from utils.paginator import Paginator, reply_paginator
-from utils.account_registration import AccountRegistration
+from utils.account_registration import AccountRegistration, get_safe_name
 from utils.gfg_api import (
     get_player_scores,
     get_player_info,
@@ -15,6 +15,13 @@ from utils.gfg_api import (
     calc_map_completion
 )
 from utils.gfg_server_accs import find_user
+from utils.emojis import (
+    RANKING_SSH,
+    RANKING_SS,
+    RANKING_SH,
+    RANKING_S,
+    RANKING_A
+)
 from requests.exceptions import HTTPError
 from ossapi import OssapiAsync
 
@@ -195,6 +202,67 @@ class Osu(commands.Cog):
             ctx=ctx,
             content=f'**Recent osu! Standard Play for {user.name}:**'
         )
+
+    @commands.hybrid_command(
+        name='osu',
+        description=("View a user's (osu!std) profile on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def osu(self,
+                  ctx: commands.Context,
+                  username: Optional[str] = None):
+        await ctx.defer()
+
+        server_accs = read_json('server_accs.json')
+
+        if not username:  # search for the user's account
+            try:
+                username = find_user(server_accs, ctx.author.id)
+            except LookupError:
+                await ctx.reply('You are not registered on osu!Goldfish.')
+                return
+
+        try:
+            user = get_player_info(name=username)
+        except HTTPError:
+            await ctx.reply('User not found.')
+            return
+
+        em = discord.Embed(
+            description=(
+                f'▸ **Goldfish Rank:** #{user.stats.rank}\n'
+
+                f'▸ **Discord:** '
+                f'<@{server_accs[get_safe_name(user.name)]["discord_id"]}>\n'
+
+                f'▸ **PP:** {int(user.stats.pp):,} '
+                f'**Accuracy:** {float(user.stats.acc):.2f}%\n'
+
+                f'▸ **Playcount:** {int(user.stats.playcount):,} '
+                f'({int(user.stats.playtime) // 3600:,} hrs)\n'
+
+                f'▸ **Replay Views:** {int(user.stats.replay_views):,}\n'
+
+                f'▸ **Ranks:** {RANKING_SSH}``{int(user.stats.xh_count):,}``'
+                f'{RANKING_SS}``{int(user.stats.x_count):,}``'
+                f'{RANKING_SH}``{int(user.stats.sh_count):,}``'
+                f'{RANKING_S}``{int(user.stats.s_count):,}``'
+                f'{RANKING_A}``{int(user.stats.a_count):,}``'
+            ),
+            colour=discord.Colour.from_rgb(181, 142, 101)
+        )
+
+        em.set_author(
+            name=f"osu! Standard Profile for {user.name}",
+            url=f"https://osu.victoryu.dev/u/{user.id}",
+            icon_url=(
+                f"https://assets.ppy.sh/old-flags/{user.country.upper()}.png"
+            )
+        )
+        em.set_thumbnail(url=f"https://a.victoryu.dev/{user.id}")
+        em.set_footer(text="On osu!Goldfish server")
+
+        await ctx.reply(embed=em, mention_author=False)
 
 
 async def setup(bot: commands.Bot):
