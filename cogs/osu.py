@@ -116,7 +116,8 @@ class Osu(commands.Cog):
         await ctx.reply(
             '**How to play on osu!Goldfish:**\n\n'
 
-            '**1.** Register for an account with ``/register``.\n'
+            '**1.** Register for an account with '
+            '</register:1114101780297547837>.\n'
             '**2.** Create a copy of your osu! shortcut.\n'
             '**3.** Right click your new shortcut and click ``Properties``.\n'
             '**4.** In ``Target``, add ``-devserver victoryu.dev`` to the '
