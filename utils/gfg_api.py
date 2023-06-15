@@ -49,7 +49,7 @@ class User:
         self.country = data['country']
         self.creation_time = datetime.fromtimestamp(data['creation_time'])
         self.latest_activity = datetime.fromtimestamp(data['latest_activity'])
-        self.stats = None
+        self.stats: UserStats = None
 
     def add_stats(self, stats):
         self.stats = stats
