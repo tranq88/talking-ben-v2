@@ -2,4 +2,5 @@
 a full rewrite of my talking ben discord bot
 
 this bot is meant for a private discord server; if you're not in it this repo is probably useless to you
+
 additionally, some of the content in these files may be questionable
