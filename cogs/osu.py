@@ -140,6 +140,62 @@ class Osu(commands.Cog):
         await get_recent_scores(ctx=ctx, username=username, mode=0)
 
     @commands.hybrid_command(
+        name='recenttaiko',
+        aliases=['rstaiko'],
+        description=(
+            "Get a user's most recent osu! Taiko play(s) on osu!Goldfish."
+        )
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def recenttaiko(self,
+                          ctx: commands.Context,
+                          username: Optional[str] = None):
+        await ctx.defer()
+        await get_recent_scores(ctx=ctx, username=username, mode=1)
+
+    @commands.hybrid_command(
+        name='recentcatch',
+        aliases=['rscatch'],
+        description=(
+            "Get a user's most recent osu! Catch play(s) on osu!Goldfish."
+        )
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def recentcatch(self,
+                          ctx: commands.Context,
+                          username: Optional[str] = None):
+        await ctx.defer()
+        await get_recent_scores(ctx=ctx, username=username, mode=2)
+
+    @commands.hybrid_command(
+        name='recentmania',
+        aliases=['rsmania'],
+        description=(
+            "Get a user's most recent osu! Mania play(s) on osu!Goldfish."
+        )
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def recentmania(self,
+                          ctx: commands.Context,
+                          username: Optional[str] = None):
+        await ctx.defer()
+        await get_recent_scores(ctx=ctx, username=username, mode=3)
+
+    @commands.hybrid_command(
+        name='recentrelax',
+        aliases=['rsrelax'],
+        description=(
+            "Get a user's most recent osu! Relax play(s) on osu!Goldfish."
+        )
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def recentrelax(self,
+                          ctx: commands.Context,
+                          username: Optional[str] = None):
+        await ctx.defer()
+        await get_recent_scores(ctx=ctx, username=username, mode=4)
+
+    @commands.hybrid_command(
         name='osu',
         description=("View a user's (osu!std) profile on osu!Goldfish.")
     )

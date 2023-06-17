@@ -66,7 +66,29 @@ async def get_recent_scores(ctx: Context,
         await ctx.reply('User not found.')
         return
 
+    modes = [
+        'osu! Standard',     # 0
+        'osu! Taiko',        # 1
+        'osu! Catch',        # 2
+        'osu! Mania',        # 3
+        'osu! Relax',        # 4
+        'osu! Relax Taiko',  # 5
+        'osu! Relax Catch',  # 6
+        None,                # placeholder
+        'osu! Autopilot'     # 8
+    ]
+
     user_scores = get_player_scores(name=user.name, mode=mode)
+    if not user_scores:
+        await ctx.reply(
+            content=(
+                f'``{user.name}`` has no recent {modes[mode]} plays '
+                'on osu!Goldfish.'
+            ),
+            mention_author=False
+        )
+        return
+
     pages: list[discord.Embed] = []
 
     for score in user_scores:
@@ -110,17 +132,6 @@ async def get_recent_scores(ctx: Context,
 
         pages.append(em)
 
-    modes = [
-        'osu! Standard',     # 0
-        'osu! Taiko',        # 1
-        'osu! Catch',        # 2
-        'osu! Mania',        # 3
-        'osu! Relax',        # 4
-        'osu! Relax Taiko',  # 5
-        'osu! Relax Catch',  # 6
-        None,                # placeholder
-        'osu! Autopilot'     # 8
-    ]
     await reply_paginator(
         paginator=Paginator(pages=pages, show_index=False),
         ctx=ctx,
