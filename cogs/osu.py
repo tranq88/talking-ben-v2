@@ -8,12 +8,8 @@ from jsons import read_json
 
 from utils.paginator import Paginator, reply_paginator
 from utils.account_registration import AccountRegistration, get_safe_name
-from utils.gfg_api import (
-    get_player_scores,
-    get_player_info,
-    get_grade_emoji,
-    calc_map_completion
-)
+from utils.osu_utils import get_grade_emoji, calc_map_completion
+from utils.gfg_api import get_player_scores, get_player_info
 from utils.gfg_server_accs import find_user
 from utils.emojis import (
     RANKING_SSH,

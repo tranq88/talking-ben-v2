@@ -5,18 +5,6 @@ import requests
 from datetime import datetime
 from ossapi import Mod
 
-from utils.emojis import (
-    RANKING_SSH,
-    RANKING_SS,
-    RANKING_SH,
-    RANKING_S,
-    RANKING_A,
-    RANKING_B,
-    RANKING_C,
-    RANKING_D,
-    RANKING_F
-)
-
 
 API_URL = 'https://api.victoryu.dev/v1/'
 
@@ -151,33 +139,6 @@ def get_player_scores(uid=None, name=None, scope='recent', mode=0) \
     for score in json['scores']:
         scores.append(Score(score))
     return scores
-
-
-def get_grade_emoji(grade: str) -> Optional[str]:
-    """Return the corresponding emoji for the given osu! score grade."""
-    if grade == 'XH':
-        return RANKING_SSH
-    elif grade == 'X':
-        return RANKING_SS
-    elif grade == 'SH':
-        return RANKING_SH
-    elif grade == 'S':
-        return RANKING_S
-    elif grade == 'A':
-        return RANKING_A
-    elif grade == 'B':
-        return RANKING_B
-    elif grade == 'C':
-        return RANKING_C
-    elif grade == 'D':
-        return RANKING_D
-    elif grade == 'F':
-        return RANKING_F
-
-
-def calc_map_completion(score: Score) -> float:
-    """Calculate the percentage of map completed as given by <score>."""
-    return score.time_elapsed / 1000 / score.beatmap.length * 100
 
 
 def calc_fc_pp():
