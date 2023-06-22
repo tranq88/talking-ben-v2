@@ -17,7 +17,7 @@ from utils.emojis import (
     RANKING_S,
     RANKING_A
 )
-from utils.osu_utils import get_recent_scores
+from utils.osu_utils import process_recent_scores
 from requests.exceptions import HTTPError
 from ossapi import OssapiAsync
 
@@ -137,7 +137,7 @@ class Osu(commands.Cog):
                      ctx: commands.Context,
                      username: Optional[str] = None):
         await ctx.defer()
-        await get_recent_scores(ctx=ctx, username=username, mode=0)
+        await process_recent_scores(ctx=ctx, username=username, mode=0)
 
     @commands.hybrid_command(
         name='recenttaiko',
@@ -151,7 +151,7 @@ class Osu(commands.Cog):
                           ctx: commands.Context,
                           username: Optional[str] = None):
         await ctx.defer()
-        await get_recent_scores(ctx=ctx, username=username, mode=1)
+        await process_recent_scores(ctx=ctx, username=username, mode=1)
 
     @commands.hybrid_command(
         name='recentcatch',
@@ -165,7 +165,7 @@ class Osu(commands.Cog):
                           ctx: commands.Context,
                           username: Optional[str] = None):
         await ctx.defer()
-        await get_recent_scores(ctx=ctx, username=username, mode=2)
+        await process_recent_scores(ctx=ctx, username=username, mode=2)
 
     @commands.hybrid_command(
         name='recentmania',
@@ -179,7 +179,7 @@ class Osu(commands.Cog):
                           ctx: commands.Context,
                           username: Optional[str] = None):
         await ctx.defer()
-        await get_recent_scores(ctx=ctx, username=username, mode=3)
+        await process_recent_scores(ctx=ctx, username=username, mode=3)
 
     @commands.hybrid_command(
         name='recentrelax',
@@ -193,7 +193,7 @@ class Osu(commands.Cog):
                           ctx: commands.Context,
                           username: Optional[str] = None):
         await ctx.defer()
-        await get_recent_scores(ctx=ctx, username=username, mode=4)
+        await process_recent_scores(ctx=ctx, username=username, mode=4)
 
     @commands.hybrid_command(
         name='osu',

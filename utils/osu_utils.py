@@ -48,9 +48,9 @@ def calc_map_completion(score: Score) -> float:
     return score.time_elapsed / 1000 / score.beatmap.length * 100
 
 
-async def get_recent_scores(ctx: Context,
-                            username: Optional[str],
-                            mode: int) -> None:
+async def process_recent_scores(ctx: Context,
+                                username: Optional[str],
+                                mode: int) -> None:
     """Get an osu!Goldfish user's most recent scores."""
     if not username:  # search for the user's account
         server_accs = read_json('server_accs.json')
