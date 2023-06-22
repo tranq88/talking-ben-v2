@@ -17,7 +17,7 @@ from utils.emojis import (
     RANKING_S,
     RANKING_A
 )
-from utils.osu_utils import process_recent_scores
+from utils.osu_utils import process_recent_scores, process_profile
 from requests.exceptions import HTTPError
 from ossapi import OssapiAsync
 
@@ -197,64 +197,59 @@ class Osu(commands.Cog):
 
     @commands.hybrid_command(
         name='osu',
-        description=("View a user's (osu!std) profile on osu!Goldfish.")
+        description=("View a user's osu! Standard profile on osu!Goldfish.")
     )
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
     async def osu(self,
                   ctx: commands.Context,
                   username: Optional[str] = None):
         await ctx.defer()
+        await process_profile(ctx=ctx, username=username, mode=0)
 
-        server_accs = read_json('server_accs.json')
+    @commands.hybrid_command(
+        name='taiko',
+        description=("View a user's osu! Taiko profile on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def taiko(self,
+                    ctx: commands.Context,
+                    username: Optional[str] = None):
+        await ctx.defer()
+        await process_profile(ctx=ctx, username=username, mode=1)
 
-        if not username:  # search for the user's account
-            try:
-                username = find_user(server_accs, ctx.author.id)
-            except LookupError:
-                await ctx.reply('You are not registered on osu!Goldfish.')
-                return
+    @commands.hybrid_command(
+        name='ctb',
+        description=("View a user's osu! Catch profile on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def ctb(self,
+                  ctx: commands.Context,
+                  username: Optional[str] = None):
+        await ctx.defer()
+        await process_profile(ctx=ctx, username=username, mode=2)
 
-        try:
-            user = get_player_info(name=username)
-        except HTTPError:
-            await ctx.reply('User not found.')
-            return
+    @commands.hybrid_command(
+        name='mania',
+        description=("View a user's osu! Mania profile on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def mania(self,
+                    ctx: commands.Context,
+                    username: Optional[str] = None):
+        await ctx.defer()
+        await process_profile(ctx=ctx, username=username, mode=3)
 
-        em = discord.Embed(
-            description=(
-                f'▸ **Goldfish Rank:** #{user.stats.rank}\n'
-
-                f'▸ **Discord:** '
-                f'<@{server_accs[get_safe_name(user.name)]["discord_id"]}>\n'
-
-                f'▸ **PP:** {int(user.stats.pp):,} '
-                f'**Accuracy:** {float(user.stats.acc):.2f}%\n'
-
-                f'▸ **Playcount:** {int(user.stats.playcount):,} '
-                f'({int(user.stats.playtime) // 3600:,} hrs)\n'
-
-                f'▸ **Replay Views:** {int(user.stats.replay_views):,}\n'
-
-                f'▸ **Ranks:** {RANKING_SSH}``{int(user.stats.xh_count):,}``'
-                f'{RANKING_SS}``{int(user.stats.x_count):,}``'
-                f'{RANKING_SH}``{int(user.stats.sh_count):,}``'
-                f'{RANKING_S}``{int(user.stats.s_count):,}``'
-                f'{RANKING_A}``{int(user.stats.a_count):,}``'
-            ),
-            colour=discord.Colour.from_rgb(181, 142, 101)
-        )
-
-        em.set_author(
-            name=f"osu! Standard Profile for {user.name}",
-            url=f"https://osu.victoryu.dev/u/{user.id}",
-            icon_url=(
-                f"https://assets.ppy.sh/old-flags/{user.country.upper()}.png"
-            )
-        )
-        em.set_thumbnail(url=f"https://a.victoryu.dev/{user.id}")
-        em.set_footer(text="On osu!Goldfish server")
-
-        await ctx.reply(embed=em, mention_author=False)
+    @commands.hybrid_command(
+        name='relax',
+        aliases=['rx'],
+        description=("View a user's osu! Relax profile on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def relax(self,
+                    ctx: commands.Context,
+                    username: Optional[str] = None):
+        await ctx.defer()
+        await process_profile(ctx=ctx, username=username, mode=4)
 
 
 async def setup(bot: commands.Bot):

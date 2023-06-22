@@ -104,7 +104,7 @@ def get_player_count():
     return res['counts']
 
 
-def get_player_info(uid=None, name=None, mode='0') -> User:
+def get_player_info(uid=None, name=None, mode=0) -> User:
     # Returns player stats for the given gamemode
     json = ''
     if uid:
@@ -117,7 +117,7 @@ def get_player_info(uid=None, name=None, mode='0') -> User:
         raise ValueError
 
     player = User(json['player']['info'])
-    stats = UserStats(mode, json['player']['stats'][mode])
+    stats = UserStats(str(mode), json['player']['stats'][str(mode)])
     player.add_stats(stats)
     return player
 
