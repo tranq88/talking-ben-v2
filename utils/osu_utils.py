@@ -1,6 +1,8 @@
 from typing import Optional
 
+from env import VM_OSU_CACHE_DIR
 from jsons import read_json
+
 from utils.gfg_api import Score, get_player_info, get_player_scores
 from utils.gfg_server_accs import find_user
 from utils.account_registration import get_safe_name
@@ -16,6 +18,7 @@ from utils.emojis import (
     RANKING_D,
     RANKING_F
 )
+import rosu_pp_py as rosu
 
 import discord
 from discord.ext.commands import Context
@@ -60,6 +63,19 @@ def get_grade_emoji(grade: str) -> Optional[str]:
 def calc_map_completion(score: Score) -> float:
     """Calculate the percentage of map completed as given by <score>."""
     return score.time_elapsed / 1000 / score.beatmap.length * 100
+
+
+def calc_star_rating(mode: int, score: Score) -> float:
+    """
+    Calculate the star rating of the map associated with <score>
+    with <score>'s mods applied.
+    """
+    map = rosu.Beatmap(path=f'{VM_OSU_CACHE_DIR}/{score.beatmap.diff_id}.osu')
+    calc = rosu.Calculator(
+        mode=(0 if mode == 4 else mode),  # treat relax as standard
+        mods=score.mods.value
+    )
+    return calc.difficulty(map).stars
 
 
 async def process_recent_scores(ctx: Context,
@@ -113,11 +129,17 @@ async def process_recent_scores(ctx: Context,
             colour=discord.Colour.from_rgb(181, 142, 101)
         )
 
+        # this code kinda sucks but is needed for local testing
+        try:
+            star_rating = calc_star_rating(mode, score)
+        except Exception:  # should be a ParseError
+            star_rating = score.beatmap.star_rating
+
         em.set_author(
             name=(
                 f'{score.beatmap.title} [{score.beatmap.difficulty}] '
                 f'+{score.mods.short_name()} '
-                f'[{score.beatmap.star_rating:.2f}★]'
+                f'[{star_rating:.2f}★]'
             ),
             url=f'https://osu.ppy.sh/b/{score.beatmap.diff_id}',
             icon_url=f'https://a.victoryu.dev/{user.id}'
