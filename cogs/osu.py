@@ -7,18 +7,8 @@ from env import BOT_TEST_SERVER, GFG_SERVER, OSU_CLIENT_ID, OSU_CLIENT_SECRET
 from jsons import read_json
 
 from utils.paginator import Paginator, reply_paginator
-from utils.account_registration import AccountRegistration, get_safe_name
-from utils.gfg_api import get_player_info
-from utils.gfg_server_accs import find_user
-from utils.emojis import (
-    RANKING_SSH,
-    RANKING_SS,
-    RANKING_SH,
-    RANKING_S,
-    RANKING_A
-)
+from utils.account_registration import AccountRegistration
 from utils.osu_utils import process_recent_scores, process_profile
-from requests.exceptions import HTTPError
 from ossapi import OssapiAsync
 
 
