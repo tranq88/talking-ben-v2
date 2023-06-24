@@ -8,7 +8,11 @@ from jsons import read_json
 
 from utils.paginator import Paginator, reply_paginator
 from utils.account_registration import AccountRegistration
-from utils.osu_utils import process_recent_scores, process_profile
+from utils.osu_utils import (
+    process_recent_scores,
+    process_profile,
+    process_best_scores
+)
 from ossapi import OssapiAsync
 
 
@@ -240,6 +244,61 @@ class Osu(commands.Cog):
                     username: Optional[str] = None):
         await ctx.defer()
         await process_profile(ctx=ctx, username=username, mode=4)
+
+    @commands.hybrid_command(
+        name='osutop',
+        description=("View a user's top osu! Standard plays on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def osutop(self,
+                     ctx: commands.Context,
+                     username: Optional[str] = None):
+        await ctx.defer()
+        await process_best_scores(ctx=ctx, username=username, mode=0)
+
+    @commands.hybrid_command(
+        name='taikotop',
+        description=("View a user's top osu! Taiko plays on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def taikotop(self,
+                       ctx: commands.Context,
+                       username: Optional[str] = None):
+        await ctx.defer()
+        await process_best_scores(ctx=ctx, username=username, mode=1)
+
+    @commands.hybrid_command(
+        name='ctbtop',
+        description=("View a user's top osu! Catch plays on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def ctbtop(self,
+                     ctx: commands.Context,
+                     username: Optional[str] = None):
+        await ctx.defer()
+        await process_best_scores(ctx=ctx, username=username, mode=2)
+
+    @commands.hybrid_command(
+        name='maniatop',
+        description=("View a user's top osu! Mania plays on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def maniatop(self,
+                       ctx: commands.Context,
+                       username: Optional[str] = None):
+        await ctx.defer()
+        await process_best_scores(ctx=ctx, username=username, mode=3)
+
+    @commands.hybrid_command(
+        name='relaxtop',
+        description=("View a user's top osu! Relax plays on osu!Goldfish.")
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def relaxtop(self,
+                       ctx: commands.Context,
+                       username: Optional[str] = None):
+        await ctx.defer()
+        await process_best_scores(ctx=ctx, username=username, mode=4)
 
 
 async def setup(bot: commands.Bot):

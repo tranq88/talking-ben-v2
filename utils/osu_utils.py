@@ -162,6 +162,88 @@ async def process_recent_scores(ctx: Context,
     )
 
 
+async def process_best_scores(ctx: Context,
+                              username: Optional[str],
+                              mode: int) -> None:
+    """Get an osu!Goldfish user's top plays."""
+    if not username:  # search for the user's account
+        server_accs = read_json('server_accs.json')
+        try:
+            username = find_user(server_accs, ctx.author.id)
+        except LookupError:
+            await ctx.reply('You are not registered on osu!Goldfish.')
+            return
+
+    try:
+        user = get_player_info(name=username)
+    except HTTPError:
+        await ctx.reply('User not found.')
+        return
+
+    user_scores = get_player_scores(
+        name=user.name,
+        mode=mode,
+        scope='best',
+        limit=100
+    )
+    if not user_scores:
+        await ctx.reply(
+            content=(
+                f'``{user.name}`` has no {modes[mode]} plays '
+                'on osu!Goldfish.'
+            ),
+            mention_author=False
+        )
+        return
+
+    # partition into groups of 5 (so we can show 5 scores per page)
+    partitions = [user_scores[i:i+5] for i in range(0, len(user_scores), 5)]
+    pages: list[discord.Embed] = []
+
+    idx = 1
+    for partition in partitions:
+        description = ''
+        for score in partition:
+            description += (
+                f'**{idx}) '
+                f'[{score.beatmap.title} [{score.beatmap.difficulty}]]'
+                f'(https://osu.ppy.sh/b/{score.beatmap.diff_id}) '
+                f'+{score.mods.short_name()}** '
+                f'[{calc_star_rating(mode, score)}★]\n'
+
+                f'▸ {get_grade_emoji(score.grade)} ▸ **{score.pp:.2f}pp** '
+                f'▸ {score.acc:.2f}%\n'
+
+                f'▸ {score.score:,} '
+                f'▸ x{score.max_combo}/{score.beatmap.max_combo} '
+                f'▸ [{score.n300}/{score.n100}/{score.n50}/{score.nmiss}]\n'
+
+                f'▸ Score set <t:{int(score.play_time.timestamp())}:R>\n'
+            )
+            idx += 1
+
+        em = discord.Embed(
+            description=description,
+            colour=discord.Colour.from_rgb(181, 142, 101)
+        )
+        em.set_author(
+            name=f'Top {modes[mode]} Plays for {user.name}',
+            url=f'https://osu.victoryu.dev/u/{user.id}',
+            icon_url=(
+                f'https://assets.ppy.sh/old-flags/{user.country.upper()}.png'
+            )
+        )
+        em.set_thumbnail(url=f'https://a.victoryu.dev/{user.id}')
+        em.set_footer(text='On osu!Goldfish server')
+
+        pages.append(em)
+
+    await reply_paginator(
+        paginator=Paginator(pages=pages),
+        ctx=ctx
+    )
+
+
 async def process_profile(ctx: Context,
                           username: Optional[str],
                           mode: int) -> None:

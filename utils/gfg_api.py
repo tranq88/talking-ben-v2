@@ -122,17 +122,31 @@ def get_player_info(uid=None, name=None, mode=0) -> User:
     return player
 
 
-def get_player_scores(uid=None, name=None, scope='recent', mode=0) \
+def get_player_scores(uid=None, name=None, scope='recent', mode=0, limit=25) \
         -> list[Score]:
     # Returns a list of player scores
     # Scope can be 'recent' or 'best'
     json = ''
     if uid:
-        json = api_get('get_player_scores', {
-                       'id': uid, 'scope': scope, 'mode': mode}).json()
+        json = api_get(
+            'get_player_scores',
+            {
+                'id': uid,
+                'scope': scope,
+                'mode': mode,
+                'limit': limit
+            }
+        ).json()
     elif name:
-        json = api_get('get_player_scores', {
-                       'name': name, 'scope': scope, 'mode': mode}).json()
+        json = api_get(
+            'get_player_scores',
+            {
+                'name': name,
+                'scope': scope,
+                'mode': mode,
+                'limit': limit
+            }
+        ).json()
     else:
         raise ValueError
     scores = []
