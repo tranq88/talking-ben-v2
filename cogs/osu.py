@@ -291,6 +291,7 @@ class Osu(commands.Cog):
 
     @commands.hybrid_command(
         name='relaxtop',
+        aliases=['rxtop'],
         description=("View a user's top osu! Relax plays on osu!Goldfish.")
     )
     @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
