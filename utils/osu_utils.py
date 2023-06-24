@@ -209,7 +209,7 @@ async def process_best_scores(ctx: Context,
                 f'[{score.beatmap.title} [{score.beatmap.difficulty}]]'
                 f'(https://osu.ppy.sh/b/{score.beatmap.diff_id}) '
                 f'+{score.mods.short_name()}** '
-                f'[{calc_star_rating(mode, score)}★]\n'
+                f'[{calc_star_rating(mode, score):.2f}★]\n'
 
                 f'▸ {get_grade_emoji(score.grade)} ▸ **{score.pp:.2f}pp** '
                 f'▸ {score.acc:.2f}%\n'
