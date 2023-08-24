@@ -1,11 +1,11 @@
 from typing import Optional
 
-from env import VM_OSU_CACHE_DIR
-from jsons import read_json
+from env import VM_OSU_CACHE_DIR, MYSQL_USERNAME, MYSQL_PW, OSUGFG_DB_NAME
+from jsons import read_json, write_json
 
 from utils.gfg_api import Score, get_player_info, get_player_scores
 from utils.gfg_server_accs import find_user
-from utils.account_registration import get_safe_name
+from utils.account_registration import get_safe_name, username_re
 from utils.paginator import Paginator, reply_paginator
 from utils.emojis import (
     RANKING_SSH,
@@ -19,6 +19,7 @@ from utils.emojis import (
     RANKING_F
 )
 from rosu_pp_py import Beatmap, Calculator
+import aiomysql
 
 import discord
 from discord.ext.commands import Context
@@ -298,3 +299,53 @@ async def process_profile(ctx: Context,
     em.set_footer(text="On osu!Goldfish server")
 
     await ctx.reply(embed=em, mention_author=False)
+
+
+async def process_name_change(ctx: Context,
+                              new_name: str) -> None:
+    """Change a user's name on osu!Goldfish."""
+    server_accs = read_json('server_accs.json')
+
+    try:
+        safe_old_name = find_user(server_accs, ctx.author.id)
+    except LookupError:
+        await ctx.reply('You are not registered on osu!Goldfish.')
+        return
+
+    if not username_re.match(new_name):
+        await ctx.reply('Invalid username syntax.')
+        return
+
+    if '_' in new_name and ' ' in new_name:
+        await ctx.reply('Username may contain "_" or " ", but not both.')
+        return
+
+    safe_new_name = get_safe_name(new_name)
+
+    if safe_new_name in server_accs:
+        await ctx.reply('Username already taken by another user.')
+        return
+
+    # update the database
+    async with aiomysql.connect(
+        host='localhost',
+        user=MYSQL_USERNAME,
+        password=MYSQL_PW,
+        db=OSUGFG_DB_NAME
+    ) as conn:
+        async with conn.cursor() as cur:
+            await cur.execute(
+                'UPDATE users '
+                'SET name = %s, safe_name = %s '
+                'WHERE safe_name = %s',
+                [new_name, safe_new_name, safe_old_name]
+            )
+            await conn.commit()
+
+    # replace the old name with safe_new_name in the json
+    server_accs[safe_new_name] = server_accs.pop(safe_old_name)
+    write_json('server_accs.json', server_accs)
+
+    await ctx.reply(
+        f'Your osu!Goldfish username has been changed to **{new_name}**!'
+    )

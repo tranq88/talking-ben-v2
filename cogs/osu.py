@@ -11,7 +11,8 @@ from utils.account_registration import AccountRegistration
 from utils.osu_utils import (
     process_recent_scores,
     process_profile,
-    process_best_scores
+    process_best_scores,
+    process_name_change
 )
 from utils.gfg_server_accs import find_user
 from ossapi import OssapiAsync
@@ -118,6 +119,17 @@ class Osu(commands.Cog):
             '**Note: This server is new so expect things to be scuffed.**',
             ephemeral=True
         )
+
+    @commands.hybrid_command(
+        name='changename',
+        description='Change your username on osu!Goldfish.'
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def changename(self,
+                         ctx: commands.Context,
+                         new_name: str):
+        await ctx.defer()
+        await process_name_change(ctx=ctx, new_name=new_name)
 
     @commands.hybrid_command(
         name='recent',
