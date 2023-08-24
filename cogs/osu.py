@@ -13,6 +13,7 @@ from utils.osu_utils import (
     process_profile,
     process_best_scores
 )
+from utils.gfg_server_accs import find_user
 from ossapi import OssapiAsync
 
 
@@ -86,15 +87,14 @@ class Osu(commands.Cog):
     async def register(self, interaction: discord.Interaction):
         server_accs = read_json('server_accs.json')
 
-        for acc in server_accs:
-            if server_accs[acc]['discord_id'] == interaction.user.id:
-                await interaction.response.send_message(
-                    f'You are registered on osu!Goldfish as **{acc}**.',
-                    ephemeral=True
-                )
-                return
-
-        await interaction.response.send_modal(AccountRegistration())
+        try:
+            username = find_user(server_accs, interaction.user.id)
+            await interaction.response.send_message(
+                f'You are registered on osu!Goldfish as **{username}**.',
+                ephemeral=True
+            )
+        except LookupError:
+            await interaction.response.send_modal(AccountRegistration())
 
     @commands.hybrid_command(
         name='privserver',
