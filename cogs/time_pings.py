@@ -21,9 +21,9 @@ class TimePings(commands.Cog):
         Begin scheduled pings at 7:27pm for
         Ontario, Alberta and British Columbia.
         """
-        self.time_pm_on.start()
-        self.time_pm_ab.start()
-        self.time_pm_bc.start()
+        # self.time_pm_on.start()
+        # self.time_pm_ab.start()
+        # self.time_pm_bc.start()
 
     @commands.hybrid_command(
         name='time',
