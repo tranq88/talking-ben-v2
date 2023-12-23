@@ -1,6 +1,3 @@
-# Most of the code in this file is from
-# https://github.com/Varkaria/guweb/blob/37a18cd29fd1e5ede4fd8396645933df7f3510e0/blueprints/frontend.py#L447-L560
-
 import discord
 from discord import ui
 

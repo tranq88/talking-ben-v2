@@ -9,6 +9,7 @@ from jsons import read_json
 from utils.paginator import Paginator, reply_paginator
 from utils.account_registration import AccountRegistration
 from utils.password_changer import PasswordChanger
+from utils.flag_changer import process_flag_change
 from utils.osu_utils import (
     process_recent_scores,
     process_profile,
@@ -144,6 +145,30 @@ class Osu(commands.Cog):
             user_safe_name = find_user(server_accs, interaction.user.id)
             await interaction.response.send_modal(
                 PasswordChanger(user_safe_name)
+            )
+        except LookupError:
+            await interaction.response.send_message(
+                'You are not registered on osu!Goldfish.'
+            )
+
+    @app_commands.command(
+        name='changeflag',
+        description='Change your flag on osu!Goldfish.'
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    @app_commands.describe(country_code=('The ISO 3166-1 alpha-2 code '
+                                         '(e.g. CA, US, PH).'))
+    async def changeflag(self,
+                         interaction: discord.Interaction,
+                         country_code: str):
+        server_accs = read_json('server_accs.json')
+
+        try:
+            user_safe_name = find_user(server_accs, interaction.user.id)
+            await process_flag_change(
+                interaction=interaction,
+                user_safe_name=user_safe_name,
+                country_code=country_code
             )
         except LookupError:
             await interaction.response.send_message(
