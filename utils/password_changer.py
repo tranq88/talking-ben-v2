@@ -51,7 +51,10 @@ class PasswordChanger(ui.Modal, title='osu!Goldfish Password Change'):
             )
             return
 
-        await update_pw_in_db(self.user_safe_name, self.pw_plaintext)
+        await update_pw_in_db(
+            self.user_safe_name,
+            str(self.pw_plaintext)
+        )
         await interaction.response.send_message(
             'Password successfully changed.'
         )
