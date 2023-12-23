@@ -8,6 +8,7 @@ from jsons import read_json
 
 from utils.paginator import Paginator, reply_paginator
 from utils.account_registration import AccountRegistration
+from utils.password_changer import PasswordChanger
 from utils.osu_utils import (
     process_recent_scores,
     process_profile,
@@ -130,6 +131,24 @@ class Osu(commands.Cog):
                          new_name: str):
         await ctx.defer()
         await process_name_change(ctx=ctx, new_name=new_name)
+
+    @app_commands.command(
+        name='changepw',
+        description='Change your password on osu!Goldfish.'
+    )
+    @app_commands.guilds(BOT_TEST_SERVER, GFG_SERVER)
+    async def changepw(self, interaction: discord.Interaction):
+        server_accs = read_json('server_accs.json')
+
+        try:
+            user_safe_name = find_user(server_accs, interaction.user.id)
+            await interaction.response.send_modal(
+                PasswordChanger(user_safe_name)
+            )
+        except LookupError:
+            await interaction.response.send_message(
+                'You are not registered on osu!Goldfish.'
+            )
 
     @commands.hybrid_command(
         name='recent',

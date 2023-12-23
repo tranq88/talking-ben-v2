@@ -27,15 +27,19 @@ def get_safe_name(name: str) -> str:
     return name.lower().replace(' ', '_')
 
 
+def hash_password(pw_plaintext: str) -> str:
+    """Hash a plaintext password (plaintext -> md5 -> bcrypt)."""
+    pw_md5 = hashlib.md5(pw_plaintext.encode()).hexdigest().encode()
+    return bcrypt.hashpw(pw_md5, bcrypt.gensalt())
+
+
 async def register_db(name: str,
                       safe_name: str,
                       email: str,
                       pw_plaintext: str,
                       country: str):
     """Register a new account in the osu!Goldfish database."""
-    # hash password (plaintext -> md5 -> bcrypt)
-    pw_md5 = hashlib.md5(pw_plaintext.encode()).hexdigest().encode()
-    pw_bcrypt = bcrypt.hashpw(pw_md5, bcrypt.gensalt())
+    hashed_pw = hash_password(pw_plaintext)
 
     # insert into db
     async with aiomysql.connect(
@@ -53,7 +57,7 @@ async def register_db(name: str,
 
                 'VALUES '
                 '(%s, %s, %s, %s, %s, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())',
-                [name, safe_name, email, pw_bcrypt, country]
+                [name, safe_name, email, hashed_pw, country]
             )
             user_id = cur.lastrowid
 
